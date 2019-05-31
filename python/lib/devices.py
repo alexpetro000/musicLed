@@ -2,6 +2,7 @@ import time
 import numpy as np
 import config as config
 
+
 class LEDController:
     def __init__(self):
         pass
@@ -19,7 +20,7 @@ class LEDController:
                 np.array([ [r0, ..., rN], [g0, ..., gN], [b0, ..., bN]])
             Each value brightness value is an integer between 0 and 255.
         """
-        
+
         raise NotImplementedError('Show() was not implemented')
 
     def test(self, n_pixels):
@@ -37,22 +38,10 @@ class LEDController:
 
 
 class ESP8266(LEDController):
-    def __init__(self, auto_detect=False,
-                 mac_addr="aa-bb-cc-dd-ee-ff",
-                 ip='192.168.0.150',
-                 port=7778):
+    def __init__(self, ip='192.168.0.150', port=7778):
         """Initialize object for communicating with as ESP8266
         Parameters
         ----------
-        auto_detect: bool, optional
-            Automatically search for and find devices on windows hotspot
-            with given mac addresses. Windows hotspot resets the IP
-            addresses of any devices on reset, meaning the IP of the 
-            ESP8266 changes every time you turn on the hotspot. This
-            will find the IP address of the devices for you.
-        mac_addr: str, optional
-            The MAC address of the ESP8266 on the network. Only used if
-            auto-detect is used
         ip: str, optional
             The IP address of the ESP8266 on the network. This must exactly
             match the IP address of your ESP8266 device, unless using
@@ -61,31 +50,11 @@ class ESP8266(LEDController):
             The port number to use when sending data to the ESP8266. This
             must exactly match the port number in the ESP8266's firmware.
         """
+        super().__init__()
         import socket
-        self._mac_addr = mac_addr
         self._ip = ip
         self._port = port
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        if auto_detect:
-            self.detect()
-
-    def detect(self):
-        from subprocess import check_output
-        from time import sleep
-        """ Uses "arp -a" to find esp8266 on windows hotspot"""
-        # Find the audio strip automagically
-        ip_addr = False
-        while not ip_addr:
-            arp_out = check_output(['arp', '-a']).splitlines()
-            for i in arp_out:
-                if self._mac_addr in str(i):
-                    ip_addr = i.split()[0].decode("utf-8")
-                    break
-            else:
-                print("Device not found at physical address {}, retrying in 1s".format(self._mac_addr))
-                sleep(1)
-        print("Found device {}, with IP address {}".format(self._mac_addr, ip_addr))
-        self._ip = ip_addr
 
     def show(self, pixels):
         """Sends UDP packets to ESP8266 to update LED strip values
@@ -101,7 +70,8 @@ class ESP8266(LEDController):
             b (0 to 255): Blue value of LED
         """
 
-        message = pixels.T.clip(0, config.settings["configuration"]["maxBrightness"]).astype(np.uint8).ravel().tostring()
+        message = pixels.T.clip(0, config.settings["configuration"]["maxBrightness"]).astype(
+            np.uint8).ravel().tostring()
 
         self._sock.sendto(message, (self._ip, self._port))
 

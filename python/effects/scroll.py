@@ -45,14 +45,15 @@ class Scroll(Effect):
         board.visualizer.output = gaussian_filter1d(board.visualizer.output, sigma=config.settings["devices"][board.board]["effect_opts"]["Scroll"]["blur"])
         # Create new color originating at the center
         board.visualizer.output[0, :speed] = lows_val[0] + mids_val[0] + high_val[0]
-       	board.visualizer.output[1, :speed] = lows_val[1] + mids_val[1] + high_val[1]
+        board.visualizer.output[1, :speed] = lows_val[1] + mids_val[1] + high_val[1]
         board.visualizer.output[2, :speed] = lows_val[2] + mids_val[2] + high_val[2]
-        # Update the LED strip
-        #return np.concatenate((vis.prev_spectrum[:, ::-speed], vis.prev_spectrum), axis=1)
-        if config.settings["devices"][board.board]["effect_opts"]["Scroll"]["mirror"]:
-            p = np.concatenate((board.visualizer.output[:, ::-2], board.visualizer.output[:, ::2]), axis=1)
+
+        if config.settings["devices"][board.board]["effect_opts"]["Scroll"]["flip_lr"]:
+            p = np.fliplr(board.visualizer.output)
         else:
             p = board.visualizer.output
+
+        p = np.concatenate((p[:, ::-2], p[:, ::2]), axis=1)
+
         return p
 
-        

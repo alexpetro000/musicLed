@@ -2,26 +2,30 @@
 #include <ArduinoOTA.h>
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
+#include <ESP8266mDNS.h>
 
 #define FASTLED_ESP8266_DMA // better control for ESP8266 will output or RX pin requires fork https://github.com/coryking/FastLED
 #include "FastLED.h"
 
 /************ Network Information (CHANGE THESE FOR YOUR SETUP) ************************/
-const char* ssid = "WIFI_SSID";
-const char* password = "WIFI_PASSWORD";
+const char* ssid = "AlexNET_portable";
+const char* password = "MR7GZDNSEW";
 
-const char* sensor_name = "TEST_SENSOR_HOSTNAME";
-const char* ota_password = "OTA_PASSWORD";
+const char* sensor_name = "LIGHT_MUSIC";
+const char* ota_password = "egziifxn";
 
-const bool static_ip = true;
-IPAddress ip(192, 168, 1, 112);
-IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 255, 0);
+#define STATIC_IP
+
+#ifdef STATIC_IP
+  IPAddress ip(192, 168, 1, 112);
+  IPAddress gateway(192, 168, 1, 1);
+  IPAddress subnet(255, 255, 255, 0);
+#endif //STATIC_IP
 
 const int udp_port = 7778;
 
 /*********************************** FastLED Defintions ********************************/
-#define NUM_LEDS      250
+#define NUM_LEDS      300
 #define DATA_PIN      5
 //#define CLOCK_PIN   2
 #define CHIPSET       WS2812B
@@ -36,14 +40,34 @@ void setup() {
   Serial.begin(115200);
 
   // Setup FastLED
-  #ifdef CLOCK_PIN
-    FastLED.addLeds<CHIPSET, DATA_PIN, CLOCK_PIN, COLOR_ORDER>(leds, NUM_LEDS);
-  #else
-    FastLED.addLeds<CHIPSET, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS);
-  #endif
+#ifdef CLOCK_PIN
+  FastLED.addLeds<CHIPSET, DATA_PIN, CLOCK_PIN, COLOR_ORDER>(leds, NUM_LEDS);
+#else
+  FastLED.addLeds<CHIPSET, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS);
+#endif
 
   // Setup the wifi connection
   setup_wifi();
+
+  uint8_t hue = 0;
+  for (int i = 0; i < NUM_LEDS; i++) {
+    // Set the i'th led to red
+    leds[i] = CHSV(hue++, 255, 255);
+    // Show the leds
+    FastLED.show();
+    // now that we've shown the leds, reset the i'th led to black
+    // leds[i] = CRGB::Black;
+    fadeall();
+    // Wait a little bit before we loop around and do it again
+    delay(1);
+  }
+
+  for (int i = 0; i < NUM_LEDS; i++) {
+    FastLED.show();
+    fadeall();
+    delay(1);
+  }
+
 
   // Setup OTA firmware updates
   setup_ota();
@@ -59,23 +83,35 @@ void setup_wifi() {
   Serial.print("Connecting to ");
   Serial.print(ssid);
 
-  if (static_ip) {
-    WiFi.config(ip, gateway, subnet);
-  }
-  
+#ifdef STATIC_IP
+  WiFi.config(ip, gateway, subnet);
+#endif //STATIC_IP
+
   WiFi.hostname(sensor_name);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-
+  int counter = 0;
   while (WiFi.status() != WL_CONNECTED) {
+    leds[counter] = CRGB::Red;
+    if (counter < NUM_LEDS - 1) counter++;
+    FastLED.show();
     delay(500);
     Serial.print(".");
   }
+
+  for (int i = 0; i < NUM_LEDS; i++) {
+    leds[i] = CRGB::Black;
+    
+  }
+  FastLED.show();
+
+  MDNS.begin(sensor_name);
 
   Serial.println("");
   Serial.println("WiFi connected!");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+  Serial.println(WiFi.macAddress());
 }
 
 void setup_ota() {
@@ -110,7 +146,7 @@ void loop() {
     setup_wifi();
     return;
   }
-  
+
   ArduinoOTA.handle();
 
   // TODO: Hookup either a more elaborate protocol, or a secondary
@@ -127,5 +163,11 @@ void loop() {
     Serial.printf("Invalid packet size: %u (expected %u)\n", packetSize, sizeof(leds));
     port.flush();
     return;
+  }
+}
+
+void fadeall() {
+  for (int i = 0; i < NUM_LEDS; i++) {
+    leds[i].nscale8(250);
   }
 }

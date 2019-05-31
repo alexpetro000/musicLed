@@ -26,7 +26,7 @@ class Power(Effect):
                            board.visualizer.multicolor_modes[board.effectConfig["Power"]["color_mode"]][1, :board.config["N_PIXELS"]]*r,
                            board.visualizer.multicolor_modes[board.effectConfig["Power"]["color_mode"]][2, :board.config["N_PIXELS"]]*r])
         # if there's a high (eg clap):
-        if board.visualizer.current_freq_detects["high"]:
+        if board.visualizer.current_freq_detects["beat"]:
             self.power_brightness = 1.0
             # Generate random indexes
             self.power_indexes = random.sample(range(board.config["N_PIXELS"]), board.config["N_PIXELS"]//6)

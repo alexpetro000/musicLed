@@ -3,27 +3,18 @@ import numpy as np
 import config as config
 import time
 
-class Visualizer():
+
+class Visualizer:
     def __init__(self, board):
         # Name of board this for which this visualizer instance is visualising
         self.board = board
         # Dictionary linking names of effects to their respective functions
+
+        self.output = np.array(
+            [[0 for i in range(config.settings["devices"][self.board.board]["configuration"]["N_PIXELS"])] for i in
+             range(3)])
+
         self.effects = {}
-        """{"Scroll":self.visualize_scroll,
-                        "Energy":self.visualize_energy,
-                        "Spectrum":self.visualize_spectrum,
-                        "Power":self.visualize_power,
-                        "Wavelength":self.visualize_wavelength,
-                        "Beat":self.visualize_beat,
-                        "Wave":self.visualize_wave,
-                        "Bars":self.visualize_bars,
-                        #"Pulse":self.visualize_pulse,
-                        #"Auto":self.visualize_auto,
-                        "Single":self.visualize_single,
-                        "Fire":self.visualize_fire,
-                        "Fade":self.visualize_fade,
-                        "Gradient":self.visualize_gradient,
-                        "Calibration": self.visualize_calibration}"""
 
         from effects.off import Off
         self.effects["Off"] = Off(self)
@@ -33,6 +24,9 @@ class Visualizer():
 
         from effects.energy import Energy
         self.effects["Energy"] = Energy(self)
+
+        from effects.energyScroll import EnergyScroll
+        self.effects["EnergyScroll"] = EnergyScroll(self)
 
         from effects.wavelength import Wavelength
         self.effects["Wavelength"] = Wavelength(self)
@@ -82,41 +76,43 @@ class Visualizer():
         from effects.sleep import Sleep
         self.effects["Sleep"] = Sleep(self)
 
-
         # List of all the visualisation effects that aren't audio reactive.
         # These will still display when no music is playing.
         self.non_reactive_effects = ["Single", "Fire", "Gradient", "Fade", "Runner", "Sleep" "Calibration"]
         # Setup for frequency detection algorithm
         self.freq_channel_history = 40
         self.beat_count = 0
-       
-        self.freq_channels = [deque(maxlen=self.freq_channel_history) for i in range(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"])]
-        self.prev_output = np.array([[0 for i in range(config.settings["devices"][self.board.board]["configuration"]["N_PIXELS"])] for i in range(3)])
-        self.output = np.array([[0 for i in range(config.settings["devices"][self.board.board]["configuration"]["N_PIXELS"])] for i in range(3)])
+
+        self.freq_channels = [deque(maxlen=self.freq_channel_history) for i in
+                              range(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"])]
+        self.prev_output = np.array(
+            [[0 for i in range(config.settings["devices"][self.board.board]["configuration"]["N_PIXELS"])] for i in
+             range(3)])
         self.prev_spectrum = np.array([config.settings["devices"][self.board.board]["configuration"]["N_PIXELS"] // 2])
-        self.current_freq_detects = {"beat":False,
-                                     "low":False,
-                                     "mid":False,
-                                     "high":False}
-        self.prev_freq_detects = {"beat":0,
-                                  "low":0,
-                                  "mid":0,
-                                  "high":0}
-        self.detection_ranges = {"beat":(0,int(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"]*0.11)),
-                                 "low":(int(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"]*0.13),
-                                        int(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"]*0.4)),
-                                 "mid":(int(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"]*0.4),
-                                        int(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"]*0.7)),
-                                 "high":(int(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"]*0.8),
-                                         int(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"]))}
-        self.min_detect_amplitude = {"beat":0.7,
-                                     "low":0.5,
-                                     "mid":0.3,
-                                     "high":0.3}
-        self.min_percent_diff = {"beat":70,
-                                 "low":100,
-                                 "mid":50,
-                                 "high":30}
+        self.current_freq_detects = {"beat": False,
+                                     "low": False,
+                                     "mid": False,
+                                     "high": False}
+        self.prev_freq_detects = {"beat": 0,
+                                  "low": 0,
+                                  "mid": 0,
+                                  "high": 0}
+        self.detection_ranges = {
+            "beat": (0, int(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"] * 0.11)),
+            "low": (int(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"] * 0.13),
+                    int(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"] * 0.4)),
+            "mid": (int(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"] * 0.4),
+                    int(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"] * 0.7)),
+            "high": (int(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"] * 0.8),
+                     int(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"]))}
+        self.min_detect_amplitude = {"beat": 0.7,
+                                     "low": 0.5,
+                                     "mid": 0.3,
+                                     "high": 0.3}
+        self.min_percent_diff = {"beat": 70,
+                                 "low": 100,
+                                 "mid": 50,
+                                 "high": 30}
         # Configurations for dynamic ui generation. Effect options can be changed by widgets created at runtime,
         # meaning that you don't need to worry about the user interface - it's all done for you. All you need to
         # do is add items to this dict below.
@@ -148,106 +144,113 @@ class Visualizer():
         for key in self.effects.keys():
             allEffects[key] = key
 
-        self.dynamic_effects_config = {"Energy":[["blur", "Blur", "float_slider", (0.1,4.0,0.1)],
-                                                 ["scale", "Scale", "float_slider", (0.4,1.0,0.05)],
-                                                 ["r_multiplier", "Red", "float_slider", (0.05,1.0,0.05)],
-                                                 ["mirror", "Mirror", "checkbox"],
-                                                 ["g_multiplier", "Green", "float_slider", (0.05,1.0,0.05)],
-                                                 ["b_multiplier", "Blue", "float_slider", (0.05,1.0,0.05)]],
-                                         "Wave":[["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
-                                                 ["wipe_len", "Wave Start Length", "slider", (0,config.settings["devices"][self.board.board]["configuration"]["N_PIXELS"]//4,1)],
-                                                 ["wipe_speed", "Wave Speed", "slider", (1,10,1)],
-                                                 ["decay", "Flash Decay", "float_slider", (0.1,1.0,0.05)]],
-                                     "Spectrum":[
-                                                    ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
-                                                    ["blur", "Blur", "float_slider", (0.1,4.0,0.1)]
-                                                ],
-                                        "Auto": [
-                                                    ["timer", "Timer", "slider", (100, 20000, 100)]
-                                                ],
-                                   "Wavelength":[["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
-                                                 ["roll_speed", "Roll Speed", "slider", (0,8,1)],
-                                                 ["blur", "Blur", "float_slider", (0.1,4.0,0.1)],
-                                                 ["mirror", "Mirror", "checkbox"],
-                                                 ["reverse_grad", "Reverse Gradient", "checkbox"],
-                                                 ["reverse_roll", "Reverse Roll", "checkbox"],
-                                                 ["flip_lr", "Flip LR", "checkbox"]],
-                                       "Scroll":[["lows_color", "Lows Color", "dropdown", config.settings["colors"]],
-                                                 ["mids_color", "Mids Color", "dropdown", config.settings["colors"]],
-                                                 ["high_color", "Highs Color", "dropdown", config.settings["colors"]],
-                                                 ["blur", "Blur", "float_slider", (0.95,1,0.005)],
-                                                 ["mirror", "Mirror", "checkbox"],
-                                                 ["decay", "Decay", "float_slider", (0.97,1.0,0.0005)],
-                                                 ["speed", "Speed", "slider", (1,5,1)]],
-                                        "Power":[["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+        self.dynamic_effects_config = {"Energy": [["blur", "Blur", "float_slider", (0.1, 4.0, 0.1)],
+                                                  ["scale", "Scale", "float_slider", (0.4, 1.0, 0.05)],
+                                                  ["mirror", "Mirror", "checkbox"],
+                                                  ["r_multiplier", "Red", "float_slider", (0.05, 1.0, 0.05)],
+                                                  ["g_multiplier", "Green", "float_slider", (0.05, 1.0, 0.05)],
+                                                  ["b_multiplier", "Blue", "float_slider", (0.05, 1.0, 0.05)]],
+                                       "EnergyScroll": [
+                                                  ["opacity", "Opacity", "float_slider", (0.0, 1.0, 0.01)],
+                                                  ["energy_on_top", "Energy on top", "checkbox"]
+                                       ],
+                                       "Wave": [["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+                                                ["wipe_len", "Wave Start Length", "slider", (0,
+                                                                                             config.settings["devices"][
+                                                                                                 self.board.board][
+                                                                                                 "configuration"][
+                                                                                                 "N_PIXELS"] // 4, 1)],
+                                                ["wipe_speed", "Wave Speed", "slider", (1, 10, 1)],
+                                                ["decay", "Flash Decay", "float_slider", (0.1, 1.0, 0.05)]],
+                                       "Spectrum": [
+                                           ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+                                           ["blur", "Blur", "float_slider", (0.1, 4.0, 0.1)]
+                                       ],
+                                       "Auto": [
+                                           ["timer", "Timer", "slider", (100, 20000, 100)]
+                                       ],
+                                       "Wavelength": [
+                                           ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+                                           ["roll_speed", "Roll Speed", "slider", (0, 8, 1)],
+                                           ["blur", "Blur", "float_slider", (0.1, 4.0, 0.1)],
+                                           ["mirror", "Mirror", "checkbox"],
+                                           ["reverse_grad", "Reverse Gradient", "checkbox"],
+                                           ["reverse_roll", "Reverse Roll", "checkbox"],
+                                           ["flip_lr", "Flip LR", "checkbox"]],
+                                       "Scroll": [["lows_color", "Lows Color", "dropdown", config.settings["colors"]],
+                                                  ["mids_color", "Mids Color", "dropdown", config.settings["colors"]],
+                                                  ["high_color", "Highs Color", "dropdown", config.settings["colors"]],
+                                                  ["blur", "Blur", "float_slider", (0.95, 1, 0.005)],
+                                                  ["flip_lr", "Flip LR", "checkbox"],
+                                                  ["decay", "Decay", "float_slider", (0.75, 1.0, 0.0005)],
+                                                  ["speed", "Speed", "slider", (3, 10, 1)]],
+                                       "Power": [["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
                                                  ["s_color", "Spark Color ", "dropdown", config.settings["colors"]],
-                                                 ["s_count", "Spark Amount", "slider", (0,config.settings["devices"][self.board.board]["configuration"]["N_PIXELS"]//6,1)],
+                                                 ["s_count", "Spark Amount", "slider", (0, config.settings["devices"][
+                                                     self.board.board]["configuration"]["N_PIXELS"] // 6, 1)],
                                                  ["mirror", "Mirror", "checkbox"],
                                                  ["flip_lr", "Flip LR", "checkbox"]],
-                                       "Single":[["color", "Color", "dropdown", config.settings["colors"]]],
-                                         "Beat":[["color", "Color", "dropdown", config.settings["colors"]],
-                                                 ["decay", "Flash Decay", "float_slider", (0.3,0.98,0.005)]],
-                                         "Bars":[["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
-                                                 ["resolution", "Resolution", "slider", (1, config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"], 1)],
-                                                 ["roll_speed", "Roll Speed", "slider", (0,8,1)],
-                                                 ["flip_lr", "Flip LR", "checkbox"],
-                                                 ["mirror", "Mirror", "checkbox"],
-                                                 ["reverse_roll", "Reverse Roll", "checkbox"]],
-                                        "Stars":[["star_rate", "Star amount", "float_slider", (0.01, 1.0, 0.01)],
+                                       "Single": [["color", "Color", "dropdown", config.settings["colors"]]],
+                                       "Beat": [["color", "Color", "dropdown", config.settings["colors"]],
+                                                ["decay", "Flash Decay", "float_slider", (0.3, 0.98, 0.005)]],
+                                       "Bars": [["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+                                                ["resolution", "Resolution", "slider", (1, config.settings["devices"][
+                                                    self.board.board]["configuration"]["N_FFT_BINS"], 1)],
+                                                ["roll_speed", "Roll Speed", "slider", (0, 8, 1)],
+                                                ["flip_lr", "Flip LR", "checkbox"],
+                                                ["mirror", "Mirror", "checkbox"],
+                                                ["reverse_roll", "Reverse Roll", "checkbox"]],
+                                       "Stars": [["star_rate", "Star amount", "float_slider", (0.01, 1.0, 0.01)],
                                                  ["star_decay", "Star Decay", "float_slider", (1.0, 10.0, 0.1)],
                                                  ["star_speed", "Star Speed", "float_slider", (0.0001, 0.001, 0.0001)]],
-                                      "Mood":[["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
-                                                 ["roll_speed", "Roll Speed", "slider", (0,8,1)],
-                                                 ["mirror", "Mirror", "checkbox"],
-                                                 ["fast", "Fast", "checkbox"],
-                                                 ["reverse", "Reverse", "checkbox"]],
+                                       "Mood": [["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+                                                ["roll_speed", "Roll Speed", "slider", (0, 8, 1)],
+                                                ["mirror", "Mirror", "checkbox"],
+                                                ["fast", "Fast", "checkbox"],
+                                                ["reverse", "Reverse", "checkbox"]],
 
-                                     "Gradient":[["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
-                                                 ["roll_speed", "Roll Speed", "slider", (0,8,1)],
-                                                 ["mirror", "Mirror", "checkbox"],
-                                                 ["fast", "Fast", "checkbox"],
-                                                 ["reverse", "Reverse", "checkbox"]],
-                                         "Runner":[["times", "times", "slider", (0.05,1,0.05)],
-                                                 ["divide", "divide", "slider", (1,15,1)],
-                                                 ["add", "add", "slider", (0,2, 0.1)],
-                                                 ["blur", "blur", "slider", (0,5,1)],
-                                                 ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]]],
+                                       "Gradient": [
+                                           ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+                                           ["roll_speed", "Roll Speed", "slider", (0, 8, 1)],
+                                           ["mirror", "Mirror", "checkbox"],
+                                           ["fast", "Fast", "checkbox"],
+                                           ["reverse", "Reverse", "checkbox"]],
+                                       "Runner": [["times", "times", "slider", (0.05, 1, 0.05)],
+                                                  ["divide", "divide", "slider", (1, 15, 1)],
+                                                  ["add", "add", "slider", (0, 2, 0.1)],
+                                                  ["blur", "blur", "slider", (0, 5, 1)],
+                                                  ["color_mode", "Color Mode", "dropdown",
+                                                   config.settings["gradients"]]],
 
-                               "RunnerReactive":[["times", "Trail Size", "slider", (0.0,1,0.005)],
-                                                 ["divide", "Speed", "slider", (5,50,1)],
-                                                 ["add", "add", "slider", (0,1, 0.001)],
-                                                 ["blur", "blur", "slider", (0,5,1)],
-                                                 ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]]],
+                                       "RunnerReactive": [["times", "Trail Size", "slider", (0.0, 1, 0.005)],
+                                                          ["divide", "Speed", "slider", (5, 50, 1)],
+                                                          ["add", "add", "slider", (0, 1, 0.001)],
+                                                          ["blur", "blur", "slider", (0, 5, 1)],
+                                                          ["color_mode", "Color Mode", "dropdown",
+                                                           config.settings["gradients"]]],
 
-                                         "Fade":[["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
-                                                 ["roll_speed", "Fade Speed", "slider", (0,8,1)],
-                                                 ["reverse", "Reverse", "checkbox"]],
-                                  "Calibration":[["r", "Red value", "slider", (0,255,1)],
-                                                 ["g", "Green value", "slider", (0,255,1)],
-                                                 ["b", "Blue value", "slider", (0,255,1)]],
-                                        "Sleep":[["hour", "Hour to start fade", "slider", (0,23,1)],
-                                                 ["minute", "Minute to start fade", "slider", (0,60,0)],
-                                                 ["minutes_fade", "How long to fade for", "slider", (0,60,30)]]
+                                       "Fade": [["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+                                                ["roll_speed", "Fade Speed", "slider", (0, 8, 1)],
+                                                ["reverse", "Reverse", "checkbox"]],
+                                       "Calibration": [["r", "Red value", "slider", (0, 255, 1)],
+                                                       ["g", "Green value", "slider", (0, 255, 1)],
+                                                       ["b", "Blue value", "slider", (0, 255, 1)]],
+                                       "Sleep": [["hour", "Hour to start fade", "slider", (0, 23, 1)],
+                                                 ["minute", "Minute to start fade", "slider", (0, 60, 0)],
+                                                 ["minutes_fade", "How long to fade for", "slider", (0, 60, 30)]]
                                        }
-        # Setup for fps counter
-        self.frame_counter = 0
+
         self.start_time = time.time()
         # Setup for "Wave" (don't change these)
         self.wave_wipe_count = 0
         # Setup for "Power" (don't change these)
         self.power_indexes = []
         self.power_brightness = 0
-        # Setup for multicolour modes (don't mess with this either unless you want to add in your own multicolour modes)
-        # If there's a multicolour mode you would like to see, let me know on GitHub! 
-
-        #def _vect_easing_func_gen(slope=2.5, length=1):
-        #    return np.vectorize(_easing_func)
 
         def _easing_func(x, length, slope=2.5):
             # returns a nice eased curve with defined length and curve
-            xa = (x/length)**slope
-            return xa / (xa + (1 - (x/length))**slope)
-
+            xa = (x / length) ** slope
+            return xa / (xa + (1 - (x / length)) ** slope)
 
         def _easing_gradient_generator(colors, length):
             """
@@ -259,7 +262,7 @@ class Visualizer():
             length - int, length of array to return. should be from config.settings
                 eg. config.settings["devices"]["my strip"]["configuration"]["N_PIXELS"]
             """
-            colors = colors[::-1] # needs to be reversed, makes it easier to deal with
+            colors = colors[::-1]  # needs to be reversed, makes it easier to deal with
             n_transitions = len(colors) - 1
             ease_length = length // n_transitions
             pad = length - (n_transitions * ease_length)
@@ -272,7 +275,7 @@ class Visualizer():
                     # Starting ease value
                     start_value = config.settings["colors"][colors[j]][i]
                     # Ending ease value
-                    end_value = config.settings["colors"][colors[j+1]][i]
+                    end_value = config.settings["colors"][colors[j + 1]][i]
                     # Difference between start and end
                     diff = end_value - start_value
                     # Make array of all start value
@@ -286,56 +289,44 @@ class Visualizer():
                     # add transition to base values to produce curve from start to end value
                     base += eased_diffs
                     # append this to the output array
-                    output[i, j*ease_length:(j+1)*ease_length] = base
+                    output[i, j * ease_length:(j + 1) * ease_length] = base
             # cast to int
             output = np.asarray(output, dtype=int)
             # pad out the ends (bit messy but it works and looks good)
             if pad:
                 for i in range(3):
-                    output[i, -pad:] = output[i, -pad-1]
+                    output[i, -pad:] = output[i, -pad - 1]
             return output
 
         self.multicolor_modes = {}
         for gradient in config.settings["gradients"]:
             self.multicolor_modes[gradient] = _easing_gradient_generator(config.settings["gradients"][gradient],
-                                                                         config.settings["devices"][self.board.board]["configuration"]["N_PIXELS"])
+                                                                         config.settings["devices"][self.board.board][
+                                                                             "configuration"]["N_PIXELS"])
 
         for i in self.multicolor_modes:
             self.multicolor_modes[i] = np.concatenate((self.multicolor_modes[i][:, ::-1],
                                                        self.multicolor_modes[i]), axis=1)
 
     def get_vis(self, y, audio_input):
-   
 
         self.update_freq_channels(y)
         self.detect_freqs()
-        currentEffect = self.board.config["current_effect"]
-        if self.effects[currentEffect].nonReactive:
+
+        current_effect = self.board.config["current_effect"]
+
+        if self.effects[current_effect].nonReactive:
             self.prev_output = self.effects[self.board.config["current_effect"]].visualize(self.board, y)
         elif audio_input:
-            #self.prev_output = self.effects[config.settings["devices"][self.board.board]["configuration"]["current_effect"]](self.effects[config.settings["devices"][self.board.board]["configuration"]["current_effect"]], self.board, y)
-
             self.prev_output = self.effects[self.board.config["current_effect"]].visualize(self.board, y)
         else:
-            self.prev_output = np.multiply(self.prev_output, 0.95)
-        
-        self.frame_counter += 1
-        elapsed = time.time() - self.start_time
-        if elapsed >= 1.0:
-            self.start_time = time.time()
-            fps = self.frame_counter//elapsed
-            latency = elapsed/self.frame_counter
-            self.frame_counter = 0
-
-            #if config.settings["configuration"]["USE_GUI"]:
-            #    gui.label_latency.setText("{:0.3f} ms Processing Latency   ".format(latency))
-            #    gui.label_fps.setText('{:.0f} / {:.0f} FPS   '.format(fps, config.settings["configuration"]["FPS"]))
+            self.prev_output = np.multiply(self.prev_output, 0.96)
 
         return self.prev_output
 
     def _split_equal(self, value, parts):
         value = float(value)
-        return [int(round(i*value/parts)) for i in range(1,parts+1)]
+        return [int(round(i * value / parts)) for i in range(1, parts + 1)]
 
     def update_freq_channels(self, y):
         for i in range(len(y)):
@@ -349,20 +340,16 @@ class Visualizer():
         channel_avgs = []
         differences = []
         for i in range(config.settings["devices"][self.board.board]["configuration"]["N_FFT_BINS"]):
-            channel_avgs.append(sum(self.freq_channels[i])/len(self.freq_channels[i]))
-            differences.append(((self.freq_channels[i][0]-channel_avgs[i])*100)//channel_avgs[i])
+            channel_avgs.append(sum(self.freq_channels[i]) / len(self.freq_channels[i]))
+            differences.append(((self.freq_channels[i][0] - channel_avgs[i]) * 100) // channel_avgs[i])
         for i in ["beat", "low", "mid", "high"]:
-            if any(differences[j] >= self.min_percent_diff[i]\
-                   and self.freq_channels[j][0] >= self.min_detect_amplitude[i]\
-                            for j in range(*self.detection_ranges[i]))\
-                        and (time.time() - self.prev_freq_detects[i] > 0.2)\
-                        and len(self.freq_channels[0]) == self.freq_channel_history:
+            if any(differences[j] >= self.min_percent_diff[i] \
+                   and self.freq_channels[j][0] >= self.min_detect_amplitude[i] \
+                   for j in range(*self.detection_ranges[i])) \
+                    and (time.time() - self.prev_freq_detects[i] > 0.2) \
+                    and len(self.freq_channels[0]) == self.freq_channel_history:
                 self.prev_freq_detects[i] = time.time()
                 self.current_freq_detects[i] = True
-                #print(i)
+                # print(i)
             else:
-                self.current_freq_detects[i] = False    
-
-
-    
-
+                self.current_freq_detects[i] = False
