@@ -31,12 +31,13 @@ class DSP():
     def __init__(self, board):
         self.board = board
 
-        # Initialise filters etc. I've no idea what most of these are for but i imagine i won't be getting rid of them soon
+# Initialise filters etc. I've no idea what most of these are for but i imagine i won't be getting rid of them soon
+
         self.fft_plot_filter = ExpFilter(np.tile(1e-1, self.board.config["N_FFT_BINS"]), alpha_decay=0.5,
                                          alpha_rise=0.99)
         self.mel_gain = ExpFilter(np.tile(1e-1, self.board.config["N_FFT_BINS"]), alpha_decay=0.01, alpha_rise=0.99)
         self.mel_smoothing = ExpFilter(np.tile(1e-1, self.board.config["N_FFT_BINS"]), alpha_decay=0.5, alpha_rise=0.99)
-        self.gain = ExpFilter(np.tile(0.01, self.board.config["N_FFT_BINS"]), alpha_decay=0.001, alpha_rise=0.99)
+        self.gain = ExpFilter(np.tile(0.01, self.board.config["N_FFT_BINS"]), alpha_decay=0.001, alpha_rise=0.5)
         self.r_filt = ExpFilter(np.tile(0.01, self.board.config["N_PIXELS"] // 2), alpha_decay=0.2, alpha_rise=0.99)
         self.g_filt = ExpFilter(np.tile(0.01, self.board.config["N_PIXELS"] // 2), alpha_decay=0.05, alpha_rise=0.3)
         self.b_filt = ExpFilter(np.tile(0.01, self.board.config["N_PIXELS"] // 2), alpha_decay=0.1, alpha_rise=0.5)
@@ -72,7 +73,7 @@ class DSP():
         Returns
         -------
         audio_data : dict
-            Dict containinng "mel", "vol", "x", and "y"
+            Dict containing "mel", "vol", "x", and "y"
         """
 
         audio_data = {}

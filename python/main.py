@@ -50,10 +50,7 @@ def microphone_update(audio_samples):
         outputs[b][1] = outputs[b][1] * config.settings["brightness"]
         outputs[b][2] = outputs[b][2] * config.settings["brightness"]
 
-        if config.settings["sync"]:
-            boards[b].esp.show(outputs[b])
-        else:
-            boards[b].esp.show(outputs[b])
+        boards[b].esp.show(outputs[b])
 
 
 boards = {}

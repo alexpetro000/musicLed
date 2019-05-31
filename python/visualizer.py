@@ -10,9 +10,8 @@ class Visualizer:
         self.board = board
         # Dictionary linking names of effects to their respective functions
 
-        self.output = np.array(
-            [[0 for i in range(config.settings["devices"][self.board.board]["configuration"]["N_PIXELS"])] for i in
-             range(3)])
+        self.output = np.zeros((3, config.settings["devices"][self.board.board]["configuration"]["N_PIXELS"]))
+        self.idleOutputMixer = 1
 
         self.effects = {}
 
@@ -144,7 +143,10 @@ class Visualizer:
         for key in self.effects.keys():
             allEffects[key] = key
 
-        self.dynamic_effects_config = {"Energy": [["blur", "Blur", "float_slider", (0.1, 4.0, 0.1)],
+        self.dynamic_effects_config = {"Off": [["idle_r", "Red", "slider", (0, 255, 1)],
+                                                ["idle_g", "Green", "slider", (0, 255, 1)],
+                                                ["idle_b", "Blue", "slider", (0, 255, 1)]],
+                                       "Energy": [["blur", "Blur", "float_slider", (0.1, 4.0, 0.1)],
                                                   ["scale", "Scale", "float_slider", (0.4, 1.0, 0.05)],
                                                   ["mirror", "Mirror", "checkbox"],
                                                   ["r_multiplier", "Red", "float_slider", (0.05, 1.0, 0.05)],
@@ -319,8 +321,17 @@ class Visualizer:
             self.prev_output = self.effects[self.board.config["current_effect"]].visualize(self.board, y)
         elif audio_input:
             self.prev_output = self.effects[self.board.config["current_effect"]].visualize(self.board, y)
+            self.idleOutputMixer = 1
         else:
+            idleOutput = np.zeros_like(self.output)
+            idleOutput[0] = config.settings["devices"][self.board.board]["effect_opts"]["Off"]["idle_r"]
+            idleOutput[1] = config.settings["devices"][self.board.board]["effect_opts"]["Off"]["idle_g"]
+            idleOutput[2] = config.settings["devices"][self.board.board]["effect_opts"]["Off"]["idle_b"]
+
+            self.idleOutputMixer *= 0.97
+
             self.prev_output = np.multiply(self.prev_output, 0.96)
+            return self.prev_output + np.multiply(idleOutput, 1 - self.idleOutputMixer)
 
         return self.prev_output
 
