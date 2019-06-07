@@ -1,7 +1,7 @@
 import time
 import numpy as np
 import config as config
-
+import socket
 
 class LEDController:
     def __init__(self):
@@ -38,7 +38,7 @@ class LEDController:
 
 
 class ESP8266(LEDController):
-    def __init__(self, ip='192.168.0.150', port=7778):
+    def __init__(self, ip, port=7778):
         """Initialize object for communicating with as ESP8266
         Parameters
         ----------
@@ -51,7 +51,7 @@ class ESP8266(LEDController):
             must exactly match the port number in the ESP8266's firmware.
         """
         super().__init__()
-        import socket
+
         self._ip = ip
         self._port = port
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -72,8 +72,10 @@ class ESP8266(LEDController):
 
         message = pixels.T.clip(0, config.settings["configuration"]["maxBrightness"]).astype(
             np.uint8).ravel().tostring()
-
-        self._sock.sendto(message, (self._ip, self._port))
+        try:
+            self._sock.sendto(message, socket.SOCK_NONBLOCK, (self._ip, self._port))
+        except:
+            pass
 
 
 

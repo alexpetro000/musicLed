@@ -103,14 +103,14 @@ settings = {  # All settings are stored in this dict
         'FPS': 60,  # Desired refresh rate of the visualization (frames per second)
         'maxBrightness': 255,  # Max brightness sent to LED strip
         'N_ROLLING_HISTORY': 1,  # Number of past audio frames to include in the rolling window
-        'MIN_VOLUME_THRESHOLD': 0.001,  # No music visualization displayed if recorded audio volume below threshold
+        'MIN_VOLUME_THRESHOLD': 0.0001,  # No music visualization displayed if recorded audio volume below threshold
 
     },
 
     # All devices and their respective settings. Indexed by name, call each one what you want.
     "devices": {
-        "Wall Strip 1": {
-            "configuration": {"UDP_IP": "LIGHT_MUSIC.local",
+        "5m strip": {
+            "configuration": {"UDP_IP": "wrl_1.local",
                               # IP address of the ESP8266. Must match IP in ws2812_controller.ino
                               "UDP_PORT": 7778,  # Port number used for socket communication between Python and ESP8266
                               "maxBrightness": 255,
@@ -123,7 +123,7 @@ settings = {  # All settings are stored in this dict
                               # Frequencies below this value will be removed during audio processing
                               "MAX_FREQUENCY": 18000,
                               # Frequencies above this value will be removed during audio processing
-                              "current_effect": "Stars"
+                              "current_effect": "EnergyScroll"
                               # Currently selected effect for this board, used as default when program launches
                               },
 
@@ -131,6 +131,51 @@ settings = {  # All settings are stored in this dict
             # Usage: config.settings["devices"][name]["effect_opts"][effect][option]
             "effect_opts": copy.deepcopy(effectOptions)
         },
+        # "2m strip": {
+        #     "configuration": {"UDP_IP": "wrl_2.local",
+        #                       # IP address of the ESP8266. Must match IP in ws2812_controller.ino
+        #                       "UDP_PORT": 7778,  # Port number used for socket communication between Python and ESP8266
+        #                       "maxBrightness": 255,
+        #                       # Max brightness of output (0-255) (my strip sometimes bugs out with high brightness)
+        #                       # Other configuration
+        #                       "N_PIXELS": 74,  # Number of pixels in the LED strip (must match ESP8266 firmware)
+        #                       "N_FFT_BINS": 24,
+        #                       # Number of frequency bins to use when transforming audio to frequency domain
+        #                       "MIN_FREQUENCY": 20,
+        #                       # Frequencies below this value will be removed during audio processing
+        #                       "MAX_FREQUENCY": 18000,
+        #                       # Frequencies above this value will be removed during audio processing
+        #                       "current_effect": "Stars"
+        #                       # Currently selected effect for this board, used as default when program launches
+        #                       },
+        #
+        #     # Configurable options for this board's effects go in this dictionary.
+        #     # Usage: config.settings["devices"][name]["effect_opts"][effect][option]
+        #     "effect_opts": copy.deepcopy(effectOptions)
+        # },
+        #
+        # "Light panel": {
+        #     "configuration": {"UDP_IP": "wrl_3.local",
+        #                       # IP address of the ESP8266. Must match IP in ws2812_controller.ino
+        #                       "UDP_PORT": 7778,  # Port number used for socket communication between Python and ESP8266
+        #                       "maxBrightness": 255,
+        #                       # Max brightness of output (0-255) (my strip sometimes bugs out with high brightness)
+        #                       # Other configuration
+        #                       "N_PIXELS": 74,  # Number of pixels in the LED strip (must match ESP8266 firmware)
+        #                       "N_FFT_BINS": 24,
+        #                       # Number of frequency bins to use when transforming audio to frequency domain
+        #                       "MIN_FREQUENCY": 20,
+        #                       # Frequencies below this value will be removed during audio processing
+        #                       "MAX_FREQUENCY": 18000,
+        #                       # Frequencies above this value will be removed during audio processing
+        #                       "current_effect": "Stars"
+        #                       # Currently selected effect for this board, used as default when program launches
+        #                       },
+        #
+        #     # Configurable options for this board's effects go in this dictionary.
+        #     # Usage: config.settings["devices"][name]["effect_opts"][effect][option]
+        #     "effect_opts": copy.deepcopy(effectOptions)
+        # },
 
     },
 

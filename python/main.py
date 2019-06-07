@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from __future__ import division
 from __future__ import print_function
 
@@ -57,8 +59,6 @@ boards = {}
 for board in config.settings["devices"]:
     boards[board] = Board(board)
 
-apiThread = None
-
 api.setBoards(boards)
 api.setConfig(config)
 
@@ -68,5 +68,14 @@ def do_stream():
 
 
 if __name__ == "__main__":
-    streamThread = Thread(target=do_stream)
+    streamThread = Thread(target=do_stream, daemon=True)
     streamThread.start()
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        microphone.stop_stream()
+        time.sleep(3)
+
+print('exit')

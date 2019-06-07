@@ -11,7 +11,7 @@
 const char* ssid = "AlexNET_portable";
 const char* password = "MR7GZDNSEW";
 
-const char* sensor_name = "LIGHT_MUSIC";
+const char* sensor_name = "wrl_1";
 const char* ota_password = "egziifxn";
 
 #define STATIC_IP
@@ -83,6 +83,7 @@ void setup_wifi() {
   Serial.print("Connecting to ");
   Serial.print(ssid);
 
+  WiFi.setSleepMode(WIFI_NONE_SLEEP);
 #ifdef STATIC_IP
   WiFi.config(ip, gateway, subnet);
 #endif //STATIC_IP
@@ -93,7 +94,7 @@ void setup_wifi() {
   int counter = 0;
   while (WiFi.status() != WL_CONNECTED) {
     leds[counter] = CRGB::Red;
-    if (counter < NUM_LEDS - 1) counter++;
+    if (++counter >= NUM_LEDS) counter = 0;
     FastLED.show();
     delay(500);
     Serial.print(".");
@@ -101,7 +102,7 @@ void setup_wifi() {
 
   for (int i = 0; i < NUM_LEDS; i++) {
     leds[i] = CRGB::Black;
-    
+
   }
   FastLED.show();
 

@@ -4,7 +4,12 @@ import pyaudio
 import config
 
 
+interrupt = False
+
+
 def start_stream(callback):
+    global interrupt
+
     p = pyaudio.PyAudio()
     frames_per_buffer = int(config.settings["configuration"]["MIC_RATE"] / config.settings["configuration"]["FPS"])
     stream = p.open(format=pyaudio.paInt16,
@@ -14,7 +19,8 @@ def start_stream(callback):
                     frames_per_buffer=frames_per_buffer)
     overflows = 0
     prev_ovf_time = time.time()
-    while True:
+
+    while not interrupt:
         try:
             y = np.frombuffer(stream.read(frames_per_buffer, exception_on_overflow=False), dtype=np.int16)
             y = y.astype(np.float32)
@@ -27,3 +33,9 @@ def start_stream(callback):
     stream.stop_stream()
     stream.close()
     p.terminate()
+    print('mic stop')
+
+
+def stop_stream():
+    global interrupt
+    interrupt = True
