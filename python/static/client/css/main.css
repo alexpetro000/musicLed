@@ -30,6 +30,11 @@ input[type=range].slider:not([orient=vertical]).has-output+output {
 	margin-bottom:20px;
 }
 
+output {
+	padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
 .no-margin{
 	margin-bottom: -20px !important;
 }
