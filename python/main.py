@@ -7,7 +7,7 @@ import time
 from threading import Thread
 
 import config
-import lib.api as api
+# import lib.api as api
 import lib.devices as devices
 import lib.microphone as microphone
 from lib.dsp import DSP
@@ -59,8 +59,8 @@ boards = {}
 for board in config.settings["devices"]:
     boards[board] = Board(board)
 
-api.setBoards(boards)
-api.setConfig(config)
+# api.setBoards(boards)
+# api.setConfig(config)
 
 
 def do_stream():

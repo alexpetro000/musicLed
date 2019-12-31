@@ -23,19 +23,19 @@ vi = validate_input
 
 
 def setBoards(boards):
-    global _boards;
+    global _boards
     _boards = boards
 
 
 def setConfig(config):
-    global _config;
-    _config = config;
+    global _config
+    _config = config
 
 
 @viot.action('get/devices')
 def process(data):
     devices = []
-    for device, details in _config.settings["devices"].items():
+    for device, _ in _config.settings["devices"].items():
         effects = {"reactive": [], "nreactive": []}
 
         for effect, details in _boards[device].visualizer.effects.items():
@@ -64,7 +64,7 @@ def process(data):
                 "options": options
             }
 
-            if (details.nonReactive):
+            if details.nonReactive:
                 effects["nreactive"].append(effect_)
             else:
                 effects["reactive"].append(effect_)
@@ -76,7 +76,6 @@ def process(data):
             "currentEffect": _boards[device].config["current_effect"],
             "effects": effects
         })
-
     return {"devices": devices}
 
 
@@ -230,7 +229,7 @@ def process(data):
     useAll_ = _config.settings["sync"]
 
     for device, details in _config.settings["devices"].items():
-        if (device == device_):
+        if device == device_:
             foundDevice = device
 
     if (useAll_):

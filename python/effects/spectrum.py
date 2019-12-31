@@ -2,6 +2,7 @@ from scipy.ndimage.filters import gaussian_filter1d
 import numpy as np
 import config  as config
 import util
+import colorsys
 
 from effects.effect import Effect
 
@@ -11,6 +12,25 @@ class Spectrum(Effect):
         self.effectName = "Spectrum"
 
     def visualize(self, board, y):
+        # maxMel = np.argmax(y)
+        # r, g, b = colorsys.hsv_to_rgb(maxMel / len(y), 1, 1)
+        # maxSpectr = int(maxMel / len(y) * board.config["N_PIXELS"])
+        # r *= 255
+        # g *= 255
+        # b *= 255
+        #
+        # board.visualizer.output[0, :] = 0
+        # board.visualizer.output[1, :] = 0
+        # board.visualizer.output[2, :] = 0
+        #
+        # board.visualizer.output[0, maxSpectr:maxSpectr+board.config["N_FFT_BINS"]] = int(r)
+        # board.visualizer.output[1, maxSpectr:maxSpectr+board.config["N_FFT_BINS"]] = int(g)
+        # board.visualizer.output[2, maxSpectr:maxSpectr+board.config["N_FFT_BINS"]] = int(b)
+
+        # return board.visualizer.output
+
+
+
         y = np.copy(util.interpolate(y, board.config["N_PIXELS"] // 2))
         board.signalProcessor.common_mode.update(y)
         diff = y - board.visualizer.prev_spectrum
@@ -19,7 +39,7 @@ class Spectrum(Effect):
         r = board.signalProcessor.r_filt.update(y - board.signalProcessor.common_mode.value)
         g = np.abs(diff)
         b = board.signalProcessor.b_filt.update(np.copy(y))
-            
+
         # Mirror the color channels for symmetric output
         r = np.concatenate((r[::-1], r))
         g = np.concatenate((g[::-1], g))

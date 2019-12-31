@@ -67,16 +67,20 @@ def get_auth(apiKey, module, uniq):
     auth_url = 'https://viot.uk/api/bridge/auth?apikey={apikey}&uniq={uniq}&module={module}'.format(apikey=apiKey,
                                                                                                    uniq=uniq,
                                                                                                    module=module)
-    r = requests.get(auth_url)
-    if not r:
-        print('viot: Could not establish connection with server. Retrying in 5s...')
-        return False
+    try:
+        r = requests.get(auth_url)
 
-    resp = r.json()
-    if not resp:
-        print('viot: Invalid response from server. Retrying in 5s...')
+        if not r:
+            print('viot: Could not establish connection with server. Retrying in 5s...')
+            return False
+
+        resp = r.json()
+        if not resp:
+            print('viot: Invalid response from server. Retrying in 5s...')
+            return False
+        return resp
+    except:
         return False
-    return resp
 
 
 class Viot:
@@ -100,7 +104,8 @@ class Viot:
             print('viot: Attempting initial connection to https://viot.uk')
 
             resp = self.auth()
-            self.begin_socket(resp['socket'], resp['authkey'])
+            if resp:
+                self.begin_socket(resp['socket'], resp['authkey'])
 
         def begin_socket(self, url, authKey):
             socket_thread = Thread(target=ViotSocket, args=[url + "?uniq=" + self.uniq + "&authkey=" + authKey])
@@ -115,10 +120,16 @@ class Viot:
 
         def auth(self):
             self.connected = False
+            attempts = 0
+            return False
             while not self.connected:
                 resp = get_auth(apiKey, module, self.uniq)
                 if not resp:
-                    time.sleep(5)
+                    time.sleep(2)
+                    attempts += 1
+                    if attempts >= 1:
+                        print('not connected')
+                        return False
                     continue
 
                 self.connected = True

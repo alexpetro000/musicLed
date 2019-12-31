@@ -23,7 +23,7 @@ class EnergyScroll(Effect):
         y = np.copy(util.interpolate(y, config.settings["devices"][board.board]["configuration"]["N_PIXELS"] // 2))
         # Map color channels according to energy in the different freq bands
         # y = np.copy(util.interpolate(y, config.settings["devices"][board.board]["configuration"]["N_PIXELS"] // 2))
-        diff = y - board.visualizer.prev_spectrum
+
         board.visualizer.prev_spectrum = np.copy(y)
         spectrum = np.copy(board.visualizer.prev_spectrum)
         spectrum = np.array([j for i in zip(spectrum, spectrum) for j in i])
@@ -77,16 +77,8 @@ class EnergyScroll(Effect):
         return p
 
     def visualize_scroll(self, board, y):
-        y = y**4.0
-        # signal_processers[board.board].gain.update(y)
-        # y /= signal_processers[board.board].gain.value
-        # y *= 255.0
+        y = y**config.settings["devices"][board.board]["effect_opts"]["Scroll"]["gain"]
 
-        n_pixels = config.settings["devices"][board.board]["configuration"]["N_PIXELS"]
-        y = np.copy(util.interpolate(y, n_pixels // 2))
-        board.signalProcessor.common_mode.update(y)
-        diff = y - board.visualizer.prev_spectrum
-        board.visualizer.prev_spectrum = np.copy(y)
         # split spectrum up
         # r = signal_processers[board.board].r_filt.update(y - signal_processers[board.board].common_mode.value)
         # g = np.abs(diff)

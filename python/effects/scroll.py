@@ -2,6 +2,7 @@ from scipy.ndimage.filters import gaussian_filter1d
 import numpy as np
 import config  as config
 import util
+import colorsys
 
 
 from effects.effect import Effect
@@ -11,28 +12,16 @@ class Scroll(Effect):
         pass
 
     def visualize(self, board, y):
-        y = y**4.0
-        # signal_processers[board.board].gain.update(y)
-        # y /= signal_processers[board.board].gain.value
-        # y *= 255.0
+        y = y**config.settings["devices"][board.board]["effect_opts"]["Scroll"]["gain"]
 
-        n_pixels = config.settings["devices"][board.board]["configuration"]["N_PIXELS"]
-        y = np.copy(util.interpolate(y, n_pixels // 2))
-        board.signalProcessor.common_mode.update(y)
-        diff = y - board.visualizer.prev_spectrum
-        board.visualizer.prev_spectrum = np.copy(y)
-        # split spectrum up
-        # r = signal_processers[board.board].r_filt.update(y - signal_processers[board.board].common_mode.value)
-        # g = np.abs(diff)
-        # b = signal_processers[board.board].b_filt.update(np.copy(y))
         y = np.clip(y, 0, 1)
         lows = y[:len(y) // 6]
         mids = y[len(y) // 6: 2 * len(y) // 5]
         high = y[2 * len(y) // 5:]
         # max values
-        lows_max = np.max(lows)#*config.settings["devices"][board.board]["effect_opts"]["Scroll"]["lows_multiplier"])
-        mids_max = float(np.max(mids))#*config.settings["devices"][board.board]["effect_opts"]["Scroll"]["mids_multiplier"])
-        high_max = float(np.max(high))#*config.settings["devices"][board.board]["effect_opts"]["Scroll"]["high_multiplier"])
+        lows_max = np.max(lows)  # *config.settings["devices"][board.board]["effect_opts"]["Scroll"]["lows_multiplier"])
+        mids_max = np.max(mids)  # *config.settings["devices"][board.board]["effect_opts"]["Scroll"]["mids_multiplier"])
+        high_max = np.max(high)  # *config.settings["devices"][board.board]["effect_opts"]["Scroll"]["high_multiplier"])
         # indexes of max values
         # map to colour gradient
         lows_val = (np.array(config.settings["colors"][config.settings["devices"][board.board]["effect_opts"]["Scroll"]["lows_color"]]) * lows_max).astype(int)

@@ -19,18 +19,14 @@ class Energy(Effect):
         # Scale by the width of the LED strip
         y *= float((config.settings["devices"][board.board]["configuration"]["N_PIXELS"] * scale) - 1)
         y = np.copy(util.interpolate(y, config.settings["devices"][board.board]["configuration"]["N_PIXELS"] // 2))
-        # Map color channels according to energy in the different freq bands
-        # y = np.copy(util.interpolate(y, config.settings["devices"][board.board]["configuration"]["N_PIXELS"] // 2))
-        diff = y - board.visualizer.prev_spectrum
-        board.visualizer.prev_spectrum = np.copy(y)
-        spectrum = np.copy(board.visualizer.prev_spectrum)
-        spectrum = np.array([j for i in zip(spectrum, spectrum) for j in i])
+
+        # spectrum = np.array([j for i in zip(spectrum, spectrum) for j in i])
         # Color channel mappings
-        r = int(np.mean(spectrum[:len(spectrum) // 3] ** scale) *
+        r = int(np.mean(y[:len(y) // 3] ** scale) *
                 config.settings["devices"][board.board]["effect_opts"]["Energy"]["r_multiplier"])
-        g = int(np.mean(spectrum[len(spectrum) // 3: 2 * len(spectrum) // 3] ** scale) *
+        g = int(np.mean(y[len(y) // 3: 2 * len(y) // 3] ** scale) *
                 config.settings["devices"][board.board]["effect_opts"]["Energy"]["g_multiplier"])
-        b = int(np.mean(spectrum[2 * len(spectrum) // 3:] ** scale) *
+        b = int(np.mean(y[2 * len(y) // 3:] ** scale) *
                 config.settings["devices"][board.board]["effect_opts"]["Energy"]["b_multiplier"])
         # Assign color to different frequency regions
         board.visualizer.output[0, :r] = 255

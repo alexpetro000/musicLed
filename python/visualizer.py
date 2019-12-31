@@ -21,11 +21,17 @@ class Visualizer:
         from effects.scroll import Scroll
         self.effects["Scroll"] = Scroll(self)
 
+        from effects.freqScroll import FreqScroll
+        self.effects["FreqScroll"] = FreqScroll(self)
+
         from effects.energy import Energy
         self.effects["Energy"] = Energy(self)
 
         from effects.energyScroll import EnergyScroll
         self.effects["EnergyScroll"] = EnergyScroll(self)
+
+        from effects.freqEnergy import FreqEnergy
+        self.effects["FreqEnergy"] = FreqEnergy(self)
 
         from effects.wavelength import Wavelength
         self.effects["Wavelength"] = Wavelength(self)
@@ -143,104 +149,138 @@ class Visualizer:
         for key in self.effects.keys():
             allEffects[key] = key
 
-        self.dynamic_effects_config = {"Off": [["idle_r", "Red", "slider", (0, 255, 1)],
-                                                ["idle_g", "Green", "slider", (0, 255, 1)],
-                                                ["idle_b", "Blue", "slider", (0, 255, 1)]],
-                                       "Energy": [["blur", "Blur", "float_slider", (0.1, 4.0, 0.1)],
-                                                  ["scale", "Scale", "float_slider", (0.4, 1.0, 0.05)],
-                                                  ["mirror", "Mirror", "checkbox"],
-                                                  ["r_multiplier", "Red", "float_slider", (0.05, 1.0, 0.05)],
-                                                  ["g_multiplier", "Green", "float_slider", (0.05, 1.0, 0.05)],
-                                                  ["b_multiplier", "Blue", "float_slider", (0.05, 1.0, 0.05)]],
-                                       "EnergyScroll": [
-                                                  ["opacity", "Opacity", "float_slider", (0.0, 1.0, 0.01)],
-                                                  ["energy_on_top", "Energy on top", "checkbox"]
-                                       ],
-                                       "Wave": [["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
-                                                ["wipe_len", "Wave Start Length", "slider", (0,
-                                                                                             config.settings["devices"][
-                                                                                                 self.board.board][
-                                                                                                 "configuration"][
-                                                                                                 "N_PIXELS"] // 4, 1)],
-                                                ["wipe_speed", "Wave Speed", "slider", (1, 10, 1)],
-                                                ["decay", "Flash Decay", "float_slider", (0.1, 1.0, 0.05)]],
-                                       "Spectrum": [
-                                           ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
-                                           ["blur", "Blur", "float_slider", (0.1, 4.0, 0.1)]
-                                       ],
-                                       "Auto": [
-                                           ["timer", "Timer", "slider", (100, 20000, 100)]
-                                       ],
-                                       "Wavelength": [
-                                           ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
-                                           ["roll_speed", "Roll Speed", "slider", (0, 8, 1)],
-                                           ["blur", "Blur", "float_slider", (0.1, 4.0, 0.1)],
-                                           ["mirror", "Mirror", "checkbox"],
-                                           ["reverse_grad", "Reverse Gradient", "checkbox"],
-                                           ["reverse_roll", "Reverse Roll", "checkbox"],
-                                           ["flip_lr", "Flip LR", "checkbox"]],
-                                       "Scroll": [["lows_color", "Lows Color", "dropdown", config.settings["colors"]],
-                                                  ["mids_color", "Mids Color", "dropdown", config.settings["colors"]],
-                                                  ["high_color", "Highs Color", "dropdown", config.settings["colors"]],
-                                                  ["blur", "Blur", "float_slider", (0.95, 1, 0.005)],
-                                                  ["flip_lr", "Flip LR", "checkbox"],
-                                                  ["decay", "Decay", "float_slider", (0.75, 1.0, 0.0005)],
-                                                  ["speed", "Speed", "slider", (3, 10, 1)]],
-                                       "Power": [["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
-                                                 ["s_color", "Spark Color ", "dropdown", config.settings["colors"]],
-                                                 ["s_count", "Spark Amount", "slider", (0, config.settings["devices"][
-                                                     self.board.board]["configuration"]["N_PIXELS"] // 6, 1)],
-                                                 ["mirror", "Mirror", "checkbox"],
-                                                 ["flip_lr", "Flip LR", "checkbox"]],
-                                       "Single": [["color", "Color", "dropdown", config.settings["colors"]]],
-                                       "Beat": [["color", "Color", "dropdown", config.settings["colors"]],
-                                                ["decay", "Flash Decay", "float_slider", (0.3, 0.98, 0.005)]],
-                                       "Bars": [["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
-                                                ["resolution", "Resolution", "slider", (1, config.settings["devices"][
-                                                    self.board.board]["configuration"]["N_FFT_BINS"], 1)],
-                                                ["roll_speed", "Roll Speed", "slider", (0, 8, 1)],
-                                                ["flip_lr", "Flip LR", "checkbox"],
-                                                ["mirror", "Mirror", "checkbox"],
-                                                ["reverse_roll", "Reverse Roll", "checkbox"]],
-                                       "Stars": [["star_rate", "Star amount", "float_slider", (0.01, 1.0, 0.01)],
-                                                 ["star_decay", "Star Decay", "float_slider", (1.0, 10.0, 0.1)],
-                                                 ["star_speed", "Star Speed", "float_slider", (0.0001, 0.001, 0.0001)]],
-                                       "Mood": [["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
-                                                ["roll_speed", "Roll Speed", "slider", (0, 8, 1)],
-                                                ["mirror", "Mirror", "checkbox"],
-                                                ["fast", "Fast", "checkbox"],
-                                                ["reverse", "Reverse", "checkbox"]],
+        self.dynamic_effects_config = {
+            "Off": [
+                ["idle_r", "Red", "slider", (0, 255, 1)],
+                ["idle_g", "Green", "slider", (0, 255, 1)],
+                ["idle_b", "Blue", "slider", (0, 255, 1)]],
+            "Energy": [
+                ["blur", "Blur", "float_slider", (0.1, 4.0, 0.1)],
+                ["scale", "Scale", "float_slider", (0.4, 1.0, 0.05)],
+                ["mirror", "Mirror", "checkbox"],
+                ["r_multiplier", "Red", "float_slider", (0.05, 1.0, 0.05)],
+                ["g_multiplier", "Green", "float_slider", (0.05, 1.0, 0.05)],
+                ["b_multiplier", "Blue", "float_slider", (0.05, 1.0, 0.05)]],
+            "EnergyScroll": [
+                ["opacity", "Opacity", "float_slider", (0.0, 1.0, 0.01)],
+                ["energy_on_top", "Energy on top", "checkbox"]
+            ],
+            "Wave": [
+                ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+                ["wipe_len", "Wave Start Length", "slider", (0,
+                                                             config.settings["devices"][
+                                                                 self.board.board][
+                                                                 "configuration"][
+                                                                 "N_PIXELS"] // 4, 1)],
+                ["wipe_speed", "Wave Speed", "slider", (1, 10, 1)],
+                ["decay", "Flash Decay", "float_slider", (0.1, 1.0, 0.05)]],
+            "Spectrum": [
+                ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+                ["blur", "Blur", "float_slider", (0.1, 4.0, 0.1)]
+            ],
+            "Auto": [
+                ["timer", "Timer", "slider", (100, 20000, 100)]
+            ],
+            "Wavelength": [
+                ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+                ["roll_speed", "Roll Speed", "slider", (0, 8, 1)],
+                ["blur", "Blur", "float_slider", (0.1, 4.0, 0.1)],
+                ["mirror", "Mirror", "checkbox"],
+                ["reverse_grad", "Reverse Gradient", "checkbox"],
+                ["reverse_roll", "Reverse Roll", "checkbox"],
+                ["flip_lr", "Flip LR", "checkbox"]],
+            "Scroll": [
+                ["lows_color", "Lows Color", "dropdown", config.settings["colors"]],
+                ["mids_color", "Mids Color", "dropdown", config.settings["colors"]],
+                ["high_color", "Highs Color", "dropdown", config.settings["colors"]],
+                ["blur", "Blur", "float_slider", (0.95, 1, 0.005)],
+                ["flip_lr", "Flip LR", "checkbox"],
+                ["decay", "Decay", "float_slider", (0.75, 1.0, 0.0005)],
+                ["speed", "Speed", "slider", (3, 10, 1)],
+                ["gain", "Gain", "float_slider", (0.5, 6.0, 0.001)]],
+            "FreqEnergy": [
+                ["blur", "Blur", "float_slider", (0.1, 4.0, 0.1)],
+                ["scale", "Scale", "float_slider", (0.4, 2.0, 0.05)],
+                ["mirror", "Mirror", "checkbox"],
+                ["mean", "use Mean (or Max)", "checkbox"],
+                ["splitRGB", "Split RGB specters", "checkbox"],
+                ["r_multiplier", "Red", "float_slider", (0.05, 1.0, 0.05)],
+                ["g_multiplier", "Green", "float_slider", (0.05, 1.0, 0.05)],
+                ["b_multiplier", "Blue", "float_slider", (0.05, 1.0, 0.05)],
 
-                                       "Gradient": [
-                                           ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
-                                           ["roll_speed", "Roll Speed", "slider", (0, 8, 1)],
-                                           ["mirror", "Mirror", "checkbox"],
-                                           ["fast", "Fast", "checkbox"],
-                                           ["reverse", "Reverse", "checkbox"]],
-                                       "Runner": [["times", "times", "slider", (0.05, 1, 0.05)],
-                                                  ["divide", "divide", "slider", (1, 15, 1)],
-                                                  ["add", "add", "slider", (0, 2, 0.1)],
-                                                  ["blur", "blur", "slider", (0, 5, 1)],
-                                                  ["color_mode", "Color Mode", "dropdown",
-                                                   config.settings["gradients"]]],
+                ["scrollBlur", "Scroll Blur", "float_slider", (0.95, 1, 0.005)],
+                ["decay", "Decay", "float_slider", (0.75, 1.0, 0.0005)],
+                ["speed", "Speed", "slider", (3, 10, 1)]],
+            "FreqScroll": [
+                ["blur", "Blur", "float_slider", (0.95, 1, 0.005)],
+                ["decay", "Decay", "float_slider", (0.75, 1.0, 0.0005)],
+                ["speed", "Speed", "slider", (3, 10, 1)]],
+            "Power": [
+                ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+                ["s_color", "Spark Color ", "dropdown", config.settings["colors"]],
+                ["s_count", "Spark Amount", "slider", (0, config.settings["devices"][
+                    self.board.board]["configuration"]["N_PIXELS"] // 6, 1)],
+                ["mirror", "Mirror", "checkbox"],
+                ["flip_lr", "Flip LR", "checkbox"]],
+            "Single": [
+                ["color", "Color", "dropdown", config.settings["colors"]]],
+            "Beat": [
+                ["color", "Color", "dropdown", config.settings["colors"]],
+                ["decay", "Flash Decay", "float_slider", (0.3, 0.98, 0.005)]],
+            "Bars": [
+                ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+                ["resolution", "Resolution", "slider", (1, config.settings["devices"][
+                    self.board.board]["configuration"]["N_FFT_BINS"], 1)],
+                ["roll_speed", "Roll Speed", "slider", (0, 8, 1)],
+                ["flip_lr", "Flip LR", "checkbox"],
+                ["mirror", "Mirror", "checkbox"],
+                ["reverse_roll", "Reverse Roll", "checkbox"]],
+            "Stars": [
+                ["star_rate", "Star amount", "float_slider", (0.01, 1.0, 0.01)],
+                ["star_decay", "Star Decay", "float_slider", (1.0, 10.0, 0.1)],
+                ["star_speed", "Star Speed", "float_slider", (0.0001, 0.001, 0.0001)]],
+            "Mood": [
+                ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+                ["roll_speed", "Roll Speed", "slider", (0, 8, 1)],
+                ["mirror", "Mirror", "checkbox"],
+                ["fast", "Fast", "checkbox"],
+                ["reverse", "Reverse", "checkbox"]],
 
-                                       "RunnerReactive": [["times", "Trail Size", "slider", (0.0, 1, 0.005)],
-                                                          ["divide", "Speed", "slider", (5, 50, 1)],
-                                                          ["add", "add", "slider", (0, 1, 0.001)],
-                                                          ["blur", "blur", "slider", (0, 5, 1)],
-                                                          ["color_mode", "Color Mode", "dropdown",
-                                                           config.settings["gradients"]]],
+            "Gradient": [
+                ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+                ["roll_speed", "Roll Speed", "slider", (0, 8, 1)],
+                ["mirror", "Mirror", "checkbox"],
+                ["fast", "Fast", "checkbox"],
+                ["reverse", "Reverse", "checkbox"]],
+            "Runner": [
+                ["times", "times", "slider", (0.05, 1, 0.05)],
+                ["divide", "divide", "slider", (1, 15, 1)],
+                ["add", "add", "slider", (0, 2, 0.1)],
+                ["blur", "blur", "slider", (0, 5, 1)],
+                ["color_mode", "Color Mode", "dropdown",
+                 config.settings["gradients"]]],
 
-                                       "Fade": [["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
-                                                ["roll_speed", "Fade Speed", "slider", (0, 8, 1)],
-                                                ["reverse", "Reverse", "checkbox"]],
-                                       "Calibration": [["r", "Red value", "slider", (0, 255, 1)],
-                                                       ["g", "Green value", "slider", (0, 255, 1)],
-                                                       ["b", "Blue value", "slider", (0, 255, 1)]],
-                                       "Sleep": [["hour", "Hour to start fade", "slider", (0, 23, 1)],
-                                                 ["minute", "Minute to start fade", "slider", (0, 60, 0)],
-                                                 ["minutes_fade", "How long to fade for", "slider", (0, 60, 30)]]
-                                       }
+            "RunnerReactive": [
+                ["times", "Trail Size", "slider", (0.0, 1, 0.005)],
+                ["divide", "Speed", "slider", (5, 50, 1)],
+                ["add", "add", "slider", (0, 1, 0.001)],
+                ["blur", "blur", "slider", (0, 5, 1)],
+                ["color_mode", "Color Mode", "dropdown",
+                 config.settings["gradients"]]],
+
+            "Fade": [
+                ["color_mode", "Color Mode", "dropdown", config.settings["gradients"]],
+                ["roll_speed", "Fade Speed", "slider", (0, 8, 1)],
+                ["reverse", "Reverse", "checkbox"]],
+            "Calibration": [
+                ["r", "Red value", "slider", (0, 255, 1)],
+                ["g", "Green value", "slider", (0, 255, 1)],
+                ["b", "Blue value", "slider", (0, 255, 1)]],
+            "Sleep": [
+                ["hour", "Hour to start fade", "slider", (0, 23, 1)],
+                ["minute", "Minute to start fade", "slider", (0, 60, 0)],
+                ["minutes_fade", "How long to fade for", "slider", (0, 60, 30)]]
+        }
 
         self.start_time = time.time()
         # Setup for "Wave" (don't change these)
