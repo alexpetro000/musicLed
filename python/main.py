@@ -62,12 +62,13 @@ for board in config.settings["devices"]:
 api.setBoards(boards)
 api.setConfig(config)
 
+
 def do_stream():
     microphone.start_stream(microphone_update)
 
 
 def do_api():
-    bottle.run(host=socket.gethostname(), port=8082)
+    bottle.run(host='0.0.0.0', port=8082)
 
 
 if __name__ == "__main__":
