@@ -7,8 +7,9 @@ import time
 from threading import Thread
 
 import config
-# import lib.api as api
+import lib.api as api
 import lib.devices as devices
+import lib.bottle as bottle
 import lib.microphone as microphone
 from lib.dsp import DSP
 from visualizer import Visualizer
@@ -28,7 +29,6 @@ class Board:
 
 
 laserSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
 
 def microphone_update(audio_samples):
 
@@ -59,15 +59,21 @@ boards = {}
 for board in config.settings["devices"]:
     boards[board] = Board(board)
 
-# api.setBoards(boards)
-# api.setConfig(config)
-
+api.setBoards(boards)
+api.setConfig(config)
 
 def do_stream():
     microphone.start_stream(microphone_update)
 
 
+def do_api():
+    bottle.run(host=socket.gethostname(), port=8082)
+
+
 if __name__ == "__main__":
+    apiThread = Thread(target=do_api, daemon=True)
+    apiThread.start()
+
     streamThread = Thread(target=do_stream, daemon=True)
     streamThread.start()
 
