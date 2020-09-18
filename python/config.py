@@ -28,7 +28,7 @@ settings = {
     # All devices and their respective settings. Indexed by name, call each one what you want.
     "devices": {
         "5m strip": {
-            "configuration": {"UDP_IP": "192.168.1.11",
+            "configuration": {"UDP_IP": "wled.local",
                               # IP address of the ESP8266. Must match IP in ws2812_controller.ino
                               "UDP_PORT": 19446,  # Port number used for socket communication between Python and ESP8266
                               "maxBrightness": 255,
