@@ -36,6 +36,7 @@ App.controller('mainController', function($scope,$rootScope,$location, $api, $ti
 
 	$scope.setEffect = (effect) => {
 		console.log(effect)
+		$scope.setActiveOption(effect);
 		$api.fetch('set/effect', {device:$scope.activeDevice.name, effect:effect.name}, (data) => {
 			if(data.status=='ok'){
 				$scope.activeDevice.currentEffect = effect.name
