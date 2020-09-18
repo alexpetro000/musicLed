@@ -6,9 +6,11 @@ import util
 class Effect():
     nonReactive = False
     effectName = "Effect"
+    configProps = []
+
     def __init__(self, visualizer):
         pass
-        
+
     def visualize(self, board, y):
-    	pass
+        pass
 

@@ -7,8 +7,17 @@ from effects.effect import Effect
 
 
 class Wavelength(Effect):
-    def __init__(self, board):
+    def __init__(self, visualizer):
         self.effectName = "Wavelength"
+        self.configProps = [
+           ["color_mode", "Color Mode", "dropdown", config.settings["gradients"], "Spectral"],
+           ["roll_speed", "Roll Speed", "slider", (0, 8, 1), 0],
+           ["blur", "Blur", "float_slider", (0.1, 4.0, 0.1), 1.0],
+           ["mirror", "Mirror", "checkbox", False],
+           ["reverse_grad", "Reverse Gradient", "checkbox", False],
+           ["reverse_roll", "Reverse Roll", "checkbox", False],
+           ["flip_lr", "Flip LR", "checkbox", False]
+        ]
 
     def visualize(self, board, y):
         y = np.copy(util.interpolate(y, board.config["N_PIXELS"] // 2))

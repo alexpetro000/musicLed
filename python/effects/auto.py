@@ -12,6 +12,9 @@ class Auto(Effect):
 
     def __init__(self, visualizer):
         self.effectName = "Auto"
+        self.configProps = [
+            ["timer", "Timer", "slider", (100, 20000, 100), 500]
+        ]
         self.effectKeys = list(visualizer.effects.keys())
 
     def visualize(self, board, y):

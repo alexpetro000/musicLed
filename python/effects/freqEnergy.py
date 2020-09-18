@@ -8,8 +8,22 @@ from effects.effect import Effect
 
 
 class FreqEnergy(Effect):
-    def __init__(self, board):
+    def __init__(self, visualizer):
         self.effectName = "FreqEnergy"
+        self.configProps = [
+            ["blur", "Blur", "float_slider", (0.1, 4.0, 0.1), 1.0],
+            ["scale", "Scale", "float_slider", (0.4, 2.0, 0.05), 1.2],
+            ["mirror", "Mirror", "checkbox", True],
+            ["mean", "use Mean (or Max)", "checkbox", True],
+            ["splitRGB", "Split RGB specters", "checkbox", False],
+            ["r_multiplier", "Red", "float_slider", (0.05, 1.0, 0.05), 1.0],
+            ["g_multiplier", "Green", "float_slider", (0.05, 1.0, 0.05), 1.0],
+            ["b_multiplier", "Blue", "float_slider", (0.05, 1.0, 0.05), 1.0],
+
+            ["scrollBlur", "Scroll Blur", "float_slider", (0.95, 1, 0.005), 0.2],
+            ["decay", "Decay", "float_slider", (0.75, 1.0, 0.0005), 0.995],
+            ["speed", "Speed", "slider", (3, 10, 1), 9]
+       ]
 
     def visualize(self, board, y):
         maxMel = np.argmax(y)

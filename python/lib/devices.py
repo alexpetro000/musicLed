@@ -55,6 +55,8 @@ class ESP8266(LEDController):
         self._ip = ip
         self._port = port
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1024)
+
 
     def show(self, pixels):
         """Sends UDP packets to ESP8266 to update LED strip values

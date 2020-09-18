@@ -7,8 +7,16 @@ from effects.effect import Effect
 
 
 class Energy(Effect):
-    def __init__(self, board):
+    def __init__(self, visualizer):
         self.effectName = "Energy"
+        self.configProps = [
+            ["blur", "Blur", "float_slider", (0.1, 4.0, 0.1), 1.0],
+            ["scale", "Scale", "float_slider", (0.4, 1.0, 0.05), 1.0],
+            ["mirror", "Mirror", "checkbox", True],
+            ["r_multiplier", "Red", "float_slider", (0.05, 1.0, 0.05), 1.0],
+            ["g_multiplier", "Green", "float_slider", (0.05, 1.0, 0.05), 1.0],
+            ["b_multiplier", "Blue", "float_slider", (0.05, 1.0, 0.05), 1.0]
+        ]
 
     def visualize(self, board, y):
 

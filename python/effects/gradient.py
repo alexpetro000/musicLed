@@ -10,6 +10,13 @@ class Gradient(Effect):
     nonReactive = True
     def __init__(self, visualizer):
         self.effectName = "Gradient"
+        self.configProps = [
+            ["color_mode", "Color Mode", "dropdown", config.settings["gradients"], "Spectral"],
+            ["roll_speed", "Roll Speed", "slider", (0, 8, 1), 0],
+            ["mirror", "Mirror", "checkbox", False],
+            ["fast", "Fast", "checkbox", False],
+            ["reverse", "Reverse", "checkbox", False]
+        ]
 
     def visualize(self, board, y):
         output = np.array([

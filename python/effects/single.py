@@ -9,6 +9,9 @@ class Single(Effect):
     nonReactive = True
     def __init__(self, visualizer):
         self.effectName = "Single"
+        self.configProps = [
+            ["color", "Color", "dropdown", config.settings["colors"], "Purple"]
+        ]
 
     def visualize(self, board, y):
         output = np.array([

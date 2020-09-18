@@ -10,7 +10,14 @@ class Mood(Effect):
     nonReactive = True
     def __init__(self, visualizer):
         self.effectName = "Mood"
-        self.delay = 0.05
+        self.configProps = [
+            ["color_mode", "Color Mode", "dropdown", config.settings["gradients"], "Spectral"],
+            ["roll_speed", "Roll Speed", "slider", (0, 8, 1), 1],
+            ["mirror", "Mirror", "checkbox", False],
+            ["fast", "Fast", "checkbox", False],
+            ["reverse", "Reverse", "checkbox", False],
+            ["delay", "Delay", "float_slider", (0.01, 1.0, 0.005), 0.1]
+        ]
 
     def visualize(self, board, y):
         output = np.array([

@@ -21,8 +21,18 @@ class Board:
     def __init__(self, b):
         self.board = b
         self.config = config.settings["devices"][self.board]["configuration"]
-        self.effectConfig = config.settings["devices"][self.board]["effect_opts"]
+
         self.visualizer = Visualizer(self)
+
+        config.settings["devices"][self.board]["effect_opts"] = {}
+
+        for effectName, effect in self.visualizer.effects.items():
+            config.settings["devices"][self.board]["effect_opts"][effectName] = {}
+            for prop in effect.configProps:
+                config.settings["devices"][self.board]["effect_opts"][effectName][prop[0]] = prop[-1]
+
+        self.effectConfig = config.settings["devices"][self.board]["effect_opts"]
+
         self.signalProcessor = DSP(self)
 
         self.esp = devices.ESP8266(self.config["UDP_IP"], self.config["UDP_PORT"])
@@ -44,9 +54,9 @@ def microphone_update(audio_samples):
         audio_input = audio_datas[b]["vol"] > config.settings["configuration"]["MIN_VOLUME_THRESHOLD"]
         outputs[b] = boards[b].visualizer.get_vis(audio_datas[b]["mel"], audio_input)
 
-        if (boards[b].config["current_effect"] in boards[b].effectConfig and "delay" in
-                boards[b].effectConfig[boards[b].config["current_effect"]]):
-            time.sleep(boards[b].effectConfig[boards[b].config["current_effect"]]["delay"])
+        if (boards[b].config["current_effect"] in config.settings["devices"][b]["effect_opts"] and "delay" in
+                config.settings["devices"][b]["effect_opts"][boards[b].config["current_effect"]]):
+            time.sleep(config.settings["devices"][b]["effect_opts"][boards[b].config["current_effect"]]["delay"])
 
         outputs[b][0] = outputs[b][0] * config.settings["brightness"]
         outputs[b][1] = outputs[b][1] * config.settings["brightness"]

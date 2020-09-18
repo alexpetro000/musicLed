@@ -10,6 +10,10 @@ from effects.effect import Effect
 class Spectrum(Effect):
     def __init__(self, visualizer):
         self.effectName = "Spectrum"
+        self.configProps = [
+            ["color_mode", "Color Mode", "dropdown", config.settings["gradients"], "Spectral"],
+            ["blur", "Blur", "float_slider", (0.1, 4.0, 0.1), 1.0]
+        ]
 
     def visualize(self, board, y):
         # maxMel = np.argmax(y)

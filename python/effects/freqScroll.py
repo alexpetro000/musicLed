@@ -9,8 +9,13 @@ from effects.effect import Effect
 
 
 class FreqScroll(Effect):
-    def __init__(self, board):        
-        pass
+    def __init__(self, visualizer):
+        self.effectName = "FreqScroll"
+        self.configProps = [
+            ["blur", "Blur", "float_slider", (0.95, 1, 0.005), 0.2],
+            ["decay", "Decay", "float_slider", (0.75, 1.0, 0.0005), 0.995],
+            ["speed", "Speed", "slider", (3, 10, 1), 9]
+        ]
 
     def visualize(self, board, y):
         y = y ** config.settings["devices"][board.board]["effect_opts"]["Scroll"]["gain"]

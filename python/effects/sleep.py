@@ -10,6 +10,11 @@ class Sleep(Effect):
     nonReactive = True
     def __init__(self, visualizer):
         self.effectName = "Sleep"
+        self.configProps = [
+            ["hour", "Hour to start fade", "slider", (0, 23, 1), 6],
+            ["minute", "Minute to start fade", "slider", (0, 60, 0), 9],
+            ["minutes_fade", "How long to fade for", "slider", (0, 60, 30), 30]
+        ]
 
     def visualize(self, board, y):
         brightness = 0

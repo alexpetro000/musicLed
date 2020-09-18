@@ -7,8 +7,17 @@ from effects.effect import Effect
 
 class Wave(Effect):
     wave_wipe_count = 0
-    def __init__(self, board):
+    def __init__(self, visualizer):
         self.effectName = "Wave"
+
+        self.configProps = [
+            ["color_mode", "Color Mode", "dropdown", config.settings["gradients"], "Spectral"],
+            ["wipe_len", "Wave Start Length", "slider", (0, config.settings["devices"][visualizer.board]["configuration"]["N_PIXELS"]), 7],
+            ["wipe_speed", "Wave Speed", "slider", (1, 10, 1), 1],
+            ["decay", "Flash Decay", "float_slider", (0.1, 1.0, 0.05), 0.9],
+            ["color_wave", "Color wave", "dropdown", config.settings["colors"], "Red"],
+            ["color_flash", "Color flash", "dropdown", config.settings["colors"], "White"],
+        ]
 
     def visualize(self, board, y):
        # print('Beat vis called')

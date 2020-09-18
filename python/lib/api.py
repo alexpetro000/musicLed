@@ -27,34 +27,30 @@ def process():
 
 		effects = {"reactive":[], "nreactive":[]}
 
-		for effect, details in _boards[device].visualizer.effects.items():
-			currentOptions = None
+		for effectName, effect in _boards[device].visualizer.effects.items():
 			options = []
-			if effect in _boards[device].visualizer.dynamic_effects_config:
-				currentOptions = _boards[device].effectConfig[effect]
 
-				effects_config = _boards[device].visualizer.dynamic_effects_config[effect]
-				
-				for effect_config_ in effects_config:
-					option = {
-						"k": effect_config_[0],
-						"name": effect_config_[1],
-						"type": effect_config_[2]
-					}
-					if len(effect_config_) > 3:
-						option["config"] = effect_config_[3]
-					options.append(option)
-			else:
-				currentOptions = {}
+			currentOptions = _boards[device].effectConfig[effectName]
 
+			effects_config = effect.configProps
+
+			for effect_config_ in effects_config:
+				option = {
+					"k": effect_config_[0],
+					"name": effect_config_[1],
+					"type": effect_config_[2]
+				}
+				if len(effect_config_) > 4:
+					option["config"] = effect_config_[3]
+				options.append(option)
 
 			effect_ = {
-				"name": effect, 
+				"name": effectName,
 				"current_options":currentOptions,
 				"options": options
 			}
 
-			if(details.nonReactive):
+			if(effect.nonReactive):
 				effects["nreactive"].append(effect_)
 			else:
 				effects["reactive"].append(effect_)

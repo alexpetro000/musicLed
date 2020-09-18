@@ -12,6 +12,13 @@ class Power(Effect):
     power_indexes = []
     def __init__(self, visualizer):
         self.effectName = "Power"
+        self.configProps = [
+            ["color_mode", "Color Mode", "dropdown", config.settings["gradients"], "Spectral"],
+            ["s_color", "Spark Color ", "dropdown", config.settings["colors"], "White"],
+            ["s_count", "Spark Amount", "slider", (0, config.settings["devices"][visualizer.board.board]["configuration"]["N_PIXELS"]), 20],
+            ["mirror", "Mirror", "checkbox", True],
+            ["flip_lr", "Flip LR", "checkbox", False]
+        ]
 
     def visualize(self, board, y):
         #board.effectConfig["Power"]["color_mode"]

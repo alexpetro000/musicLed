@@ -7,8 +7,16 @@ from effects.effect import Effect
 import math
 class Runner(Effect):
     nonReactive = True
-    def __init__(self, board):
-        self.effectName = "Wave"
+    def __init__(self, visualizer):
+        self.effectName = "ReactiveRunner"
+        self.configProps = [
+            ["times", "Trail Size", "slider", (0.0, 1, 0.005), 0.90],
+            ["divide", "Speed", "slider", (5, 50, 1), 18],
+            ["add", "add", "slider", (0, 1, 0.001), 0.8],
+            ["blur", "blur", "slider", (0, 5, 1), 1],
+            ["color_mode", "Color Mode", "dropdown", config.settings["gradients"], "Fruity"]
+        ]
+
         self.position = 0
 
     def visualize(self, board, y):

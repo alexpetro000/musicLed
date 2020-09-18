@@ -16,6 +16,11 @@ class Stars(Effect):
     dead_stars = []
     def __init__(self, visualizer):
         self.effectName = "Stars"
+        self.configProps = [
+            ["star_rate", "Star amount", "float_slider", (0.01, 1.0, 0.01), 0.29],
+            ["star_decay", "Star Decay", "float_slider", (1.0, 10.0, 0.1), 9],
+            ["star_speed", "Star Speed", "float_slider", (0.0001, 0.001, 0.0001), 0.0006]
+        ]
         
     def visualize(self, board, y):
         output = np.zeros((3,board.config["N_PIXELS"]))

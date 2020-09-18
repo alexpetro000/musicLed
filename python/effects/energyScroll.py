@@ -7,9 +7,14 @@ from effects.effect import Effect
 
 
 class EnergyScroll(Effect):
-    def __init__(self, board):
+    def __init__(self, visualizer):
         self.effectName = "EnergyScroll"
-        self.scroll_output = np.copy(board.output)
+        self.configProps = [
+            ["opacity", "Opacity", "float_slider", (0.0, 1.0, 0.01), 0.7],
+            ["energy_on_top", "Energy on top", "checkbox", False]
+        ]
+
+        self.scroll_output = np.copy(visualizer.output)
 
     def visualize(self, board, y):
         scroll_output = self.visualize_scroll(board, y)

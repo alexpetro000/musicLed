@@ -9,7 +9,12 @@ from effects.effect import Effect
 class Fade(Effect):
 	nonReactive = True
 	def __init__(self, visualizer):
-	    self.effectName = "Fade"
+		self.effectName = "Fade"
+		self.configProps = [
+			["color_mode", "Color Mode", "dropdown", config.settings["gradients"], "Spectral"],
+			["roll_speed", "Fade Speed", "slider", (0, 8, 1), 1],
+			["reverse", "Reverse", "checkbox", False]
+		]
 
 	def visualize(self, board, y):
 		output = np.array([
@@ -33,6 +38,6 @@ class Fade(Effect):
 			board.effectConfig["Fade"]["roll_speed"]*(-1 if board.effectConfig["Fade"]["reverse"] else 1),
 			axis=1
         )
-	    
+
 		return output
 

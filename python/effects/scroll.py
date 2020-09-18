@@ -8,8 +8,21 @@ import colorsys
 from effects.effect import Effect
 
 class Scroll(Effect):
-    def __init__(self, board):        
-        pass
+    def __init__(self, visualizer):
+        self.effectName = "Scroll"
+        self.configProps = [
+            ["lows_color", "Lows Color", "dropdown", config.settings["colors"], "Red"],
+            ["mids_color", "Mids Color", "dropdown", config.settings["colors"], "Green"],
+            ["high_color", "Highs Color", "dropdown", config.settings["colors"], "Blue"],
+            ["blur", "Blur", "float_slider", (0.95, 1, 0.005), 0.2],
+            ["flip_lr", "Flip LR", "checkbox", False],
+            ["decay", "Decay", "float_slider", (0.75, 1.0, 0.0005), 0.995],
+            ["speed", "Speed", "slider", (3, 10, 1), 9],
+            ["gain", "Gain", "float_slider", (0.5, 6.0, 0.001), 3.0],
+            # ["r_multiplier", "How much red", "float_slider", (0.01, 1.0, 0.01), 1.0],
+            # ["g_multiplier", "How much green", "float_slider", (0.01, 1.0, 0.01), 1.0],
+            # ["b_multiplier", "How much blue", "float_slider", (0.01, 1.0, 0.01), 1.0],
+        ]
 
     def visualize(self, board, y):
         y = y**config.settings["devices"][board.board]["effect_opts"]["Scroll"]["gain"]
