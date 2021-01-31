@@ -51,8 +51,10 @@ class ESP8266(LEDController):
             must exactly match the port number in the ESP8266's firmware.
         """
         super().__init__()
-
-        self._ip = socket.gethostbyname(ip)
+        try:
+            self._ip = socket.gethostbyname(ip)
+        except:
+            self._ip = ip
         self._port = port
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1024)
