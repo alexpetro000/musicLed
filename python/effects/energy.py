@@ -12,7 +12,8 @@ class Energy(Effect):
         self.configProps = [
             ["blur", "Blur", "float_slider", (0.1, 4.0, 0.1), 1.0],
             ["scale", "Scale", "float_slider", (0.4, 1.0, 0.05), 1.0],
-            ["mirror", "Mirror", "checkbox", True],
+            ["mirror", "Mirror", "checkbox", False],
+            ["flip_lr", "Flip LR", "checkbox", False],
             ["r_multiplier", "Red", "float_slider", (0.05, 1.0, 0.05), 1.0],
             ["g_multiplier", "Green", "float_slider", (0.05, 1.0, 0.05), 1.0],
             ["b_multiplier", "Blue", "float_slider", (0.05, 1.0, 0.05), 1.0]
@@ -50,9 +51,13 @@ class Energy(Effect):
         config.settings["devices"][board.board]["effect_opts"]["Energy"]["blur"])
         board.visualizer.output[2, :] = gaussian_filter1d(board.visualizer.output[2, :], sigma=
         config.settings["devices"][board.board]["effect_opts"]["Energy"]["blur"])
-        if config.settings["devices"][board.board]["effect_opts"]["Energy"]["mirror"]:
-            p = np.concatenate((board.visualizer.output[:, ::-2], board.visualizer.output[:, ::2]), axis=1)
+
+        if config.settings["devices"][board.board]["effect_opts"]["Energy"]["flip_lr"]:
+            p = np.fliplr(board.visualizer.output)
         else:
             p = board.visualizer.output
+
+        if config.settings["devices"][board.board]["effect_opts"]["Energy"]["mirror"]:
+            p = np.concatenate((p[:, ::-2], p[:, ::2]), axis=1)
 
         return p

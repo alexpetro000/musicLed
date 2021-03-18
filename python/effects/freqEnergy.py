@@ -13,7 +13,8 @@ class FreqEnergy(Effect):
         self.configProps = [
             ["blur", "Blur", "float_slider", (0.1, 4.0, 0.1), 1.0],
             ["scale", "Scale", "float_slider", (0.4, 2.0, 0.05), 1.2],
-            ["mirror", "Mirror", "checkbox", True],
+            ["mirror", "Mirror", "checkbox", False],
+            ["flip_lr", "Flip LR", "checkbox", False],
             ["mean", "use Mean (or Max)", "checkbox", True],
             ["splitRGB", "Split RGB specters", "checkbox", False],
             ["r_multiplier", "Red", "float_slider", (0.05, 1.0, 0.05), 1.0],
@@ -76,6 +77,9 @@ class FreqEnergy(Effect):
         config.settings["devices"][board.board]["effect_opts"]["FreqEnergy"]["blur"])
         p[2, :] = gaussian_filter1d(p[2, :], sigma=
         config.settings["devices"][board.board]["effect_opts"]["FreqEnergy"]["blur"])
+
+        if config.settings["devices"][board.board]["effect_opts"]["FreqEnergy"]["flip_lr"]:
+            p = np.fliplr(p)
 
         if config.settings["devices"][board.board]["effect_opts"]["FreqEnergy"]["mirror"]:
             p = np.concatenate((p[:, ::-2], p[:, ::2]), axis=1)

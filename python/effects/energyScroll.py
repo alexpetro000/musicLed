@@ -11,7 +11,9 @@ class EnergyScroll(Effect):
         self.effectName = "EnergyScroll"
         self.configProps = [
             ["opacity", "Opacity", "float_slider", (0.0, 1.0, 0.01), 0.7],
-            ["energy_on_top", "Energy on top", "checkbox", False]
+            ["energy_on_top", "Energy on top", "checkbox", False],
+            ["mirror", "Mirror", "checkbox", False],
+            ["flip_lr", "Flip LR", "checkbox", False],
         ]
 
         self.scroll_output = np.copy(visualizer.output)
@@ -74,10 +76,14 @@ class EnergyScroll(Effect):
         config.settings["devices"][board.board]["effect_opts"]["Energy"]["blur"])
         board.visualizer.output[2, :] = gaussian_filter1d(board.visualizer.output[2, :], sigma=
         config.settings["devices"][board.board]["effect_opts"]["Energy"]["blur"])
-        if config.settings["devices"][board.board]["effect_opts"]["Energy"]["mirror"]:
-            p = np.concatenate((board.visualizer.output[:, ::-2], board.visualizer.output[:, ::2]), axis=1)
+
+        if config.settings["devices"][board.board]["effect_opts"]["EnergyScroll"]["flip_lr"]:
+            p = np.fliplr(board.visualizer.output)
         else:
             p = board.visualizer.output
+
+        if config.settings["devices"][board.board]["effect_opts"]["EnergyScroll"]["mirror"]:
+            p = np.concatenate((p[:, ::-2], p[:, ::2]), axis=1)
 
         return p
 

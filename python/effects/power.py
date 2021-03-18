@@ -16,7 +16,7 @@ class Power(Effect):
             ["color_mode", "Color Mode", "dropdown", config.settings["gradients"], "Spectral"],
             ["s_color", "Spark Color ", "dropdown", config.settings["colors"], "White"],
             ["s_count", "Spark Amount", "slider", (0, config.settings["devices"][visualizer.board.board]["configuration"]["N_PIXELS"]), 20],
-            ["mirror", "Mirror", "checkbox", True],
+            ["mirror", "Mirror", "checkbox", False],
             ["flip_lr", "Flip LR", "checkbox", False]
         ]
 

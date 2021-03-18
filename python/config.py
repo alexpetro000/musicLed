@@ -27,71 +27,96 @@ settings = {
 
     # All devices and their respective settings. Indexed by name, call each one what you want.
     "devices": {
-        "5m strip": {
-            "configuration": {"UDP_IP": "wled.local",
+        # "wled-0": {
+        #     "configuration": {"UDP_IP": "192.168.1.200",
+        #                       # IP address of the ESP8266. Must match IP in ws2812_controller.ino
+        #                       "UDP_PORT": 19446,  # Port number used for socket communication between Python and ESP8266
+        #                       "maxBrightness": 255,
+        #                       # Max brightness of output (0-255) (my strip sometimes bugs out with high brightness)
+        #                       # Other configuration
+        #                       "N_PIXELS": 300,  # Number of pixels in the LED strip (must match ESP8266 firmware)
+        #                       "N_FFT_BINS": 56,
+        #                       # Number of frequency bins to use when transforming audio to frequency domain
+        #                       "MIN_FREQUENCY": 20,
+        #                       # Frequencies below this value will be removed during audio processing
+        #                       "MAX_FREQUENCY": 18000,
+        #                       # Frequencies above this value will be removed during audio processing
+        #                       "current_effect": "Energy"
+        #                       # Currently selected effect for this board, used as default when program launches
+        #                       },
+        # },
+        "wled-1": {
+            "configuration": {"UDP_IP": "192.168.43.7",
                               # IP address of the ESP8266. Must match IP in ws2812_controller.ino
                               "UDP_PORT": 19446,  # Port number used for socket communication between Python and ESP8266
                               "maxBrightness": 255,
                               # Max brightness of output (0-255) (my strip sometimes bugs out with high brightness)
                               # Other configuration
-                              "N_PIXELS": 300,  # Number of pixels in the LED strip (must match ESP8266 firmware)
+                              "N_PIXELS": 60,  # Number of pixels in the LED strip (must match ESP8266 firmware)
                               "N_FFT_BINS": 56,
                               # Number of frequency bins to use when transforming audio to frequency domain
                               "MIN_FREQUENCY": 20,
                               # Frequencies below this value will be removed during audio processing
                               "MAX_FREQUENCY": 18000,
                               # Frequencies above this value will be removed during audio processing
-                              "current_effect": "EnergyScroll"
+                              "current_effect": "Energy"
                               # Currently selected effect for this board, used as default when program launches
                               },
-
-            # Configurable options for this board's effects go in this dictionary.
-            # Usage: config.settings["devices"][name]["effect_opts"][effect][option]
         },
-        # "2m strip": {
-        #     "configuration": {"UDP_IP": "wrl_2.local",
-        #                       # IP address of the ESP8266. Must match IP in ws2812_controller.ino
-        #                       "UDP_PORT": 7778,  # Port number used for socket communication between Python and ESP8266
-        #                       "maxBrightness": 255,
-        #                       # Max brightness of output (0-255) (my strip sometimes bugs out with high brightness)
-        #                       # Other configuration
-        #                       "N_PIXELS": 74,  # Number of pixels in the LED strip (must match ESP8266 firmware)
-        #                       "N_FFT_BINS": 24,
-        #                       # Number of frequency bins to use when transforming audio to frequency domain
-        #                       "MIN_FREQUENCY": 20,
-        #                       # Frequencies below this value will be removed during audio processing
-        #                       "MAX_FREQUENCY": 18000,
-        #                       # Frequencies above this value will be removed during audio processing
-        #                       "current_effect": "Stars"
-        #                       # Currently selected effect for this board, used as default when program launches
-        #                       },
-        #
-        #     # Configurable options for this board's effects go in this dictionary.
-        #     # Usage: config.settings["devices"][name]["effect_opts"][effect][option]
-        # },
-        #
-        # "Light panel": {
-        #     "configuration": {"UDP_IP": "wrl_3.local",
-        #                       # IP address of the ESP8266. Must match IP in ws2812_controller.ino
-        #                       "UDP_PORT": 7778,  # Port number used for socket communication between Python and ESP8266
-        #                       "maxBrightness": 255,
-        #                       # Max brightness of output (0-255) (my strip sometimes bugs out with high brightness)
-        #                       # Other configuration
-        #                       "N_PIXELS": 74,  # Number of pixels in the LED strip (must match ESP8266 firmware)
-        #                       "N_FFT_BINS": 24,
-        #                       # Number of frequency bins to use when transforming audio to frequency domain
-        #                       "MIN_FREQUENCY": 20,
-        #                       # Frequencies below this value will be removed during audio processing
-        #                       "MAX_FREQUENCY": 18000,
-        #                       # Frequencies above this value will be removed during audio processing
-        #                       "current_effect": "Stars"
-        #                       # Currently selected effect for this board, used as default when program launches
-        #                       },
-        #
-        #     # Configurable options for this board's effects go in this dictionary.
-        #     # Usage: config.settings["devices"][name]["effect_opts"][effect][option]
-        # },
-
+        "wled-2": {
+            "configuration": {"UDP_IP": "192.168.43.151",
+                              # IP address of the ESP8266. Must match IP in ws2812_controller.ino
+                              "UDP_PORT": 19446,  # Port number used for socket communication between Python and ESP8266
+                              "maxBrightness": 255,
+                              # Max brightness of output (0-255) (my strip sometimes bugs out with high brightness)
+                              # Other configuration
+                              "N_PIXELS": 60,  # Number of pixels in the LED strip (must match ESP8266 firmware)
+                              "N_FFT_BINS": 56,
+                              # Number of frequency bins to use when transforming audio to frequency domain
+                              "MIN_FREQUENCY": 20,
+                              # Frequencies below this value will be removed during audio processing
+                              "MAX_FREQUENCY": 18000,
+                              # Frequencies above this value will be removed during audio processing
+                              "current_effect": "Energy"
+                              # Currently selected effect for this board, used as default when program launches
+                              },
+        },
+        "wled-3": {
+            "configuration": {"UDP_IP": "192.168.43.183",
+                              # IP address of the ESP8266. Must match IP in ws2812_controller.ino
+                              "UDP_PORT": 19446,  # Port number used for socket communication between Python and ESP8266
+                              "maxBrightness": 255,
+                              # Max brightness of output (0-255) (my strip sometimes bugs out with high brightness)
+                              # Other configuration
+                              "N_PIXELS": 60,  # Number of pixels in the LED strip (must match ESP8266 firmware)
+                              "N_FFT_BINS": 56,
+                              # Number of frequency bins to use when transforming audio to frequency domain
+                              "MIN_FREQUENCY": 20,
+                              # Frequencies below this value will be removed during audio processing
+                              "MAX_FREQUENCY": 18000,
+                              # Frequencies above this value will be removed during audio processing
+                              "current_effect": "Energy"
+                              # Currently selected effect for this board, used as default when program launches
+                              },
+        },
+        "wled-4": {
+            "configuration": {"UDP_IP": "192.168.43.87",
+                              # IP address of the ESP8266. Must match IP in ws2812_controller.ino
+                              "UDP_PORT": 19446,  # Port number used for socket communication between Python and ESP8266
+                              "maxBrightness": 255,
+                              # Max brightness of output (0-255) (my strip sometimes bugs out with high brightness)
+                              # Other configuration
+                              "N_PIXELS": 60,  # Number of pixels in the LED strip (must match ESP8266 firmware)
+                              "N_FFT_BINS": 56,
+                              # Number of frequency bins to use when transforming audio to frequency domain
+                              "MIN_FREQUENCY": 20,
+                              # Frequencies below this value will be removed during audio processing
+                              "MAX_FREQUENCY": 18000,
+                              # Frequencies above this value will be removed during audio processing
+                              "current_effect": "Energy"
+                              # Currently selected effect for this board, used as default when program launches
+                              },
+        },
     },
 
     # Collection of different colours in RGB format

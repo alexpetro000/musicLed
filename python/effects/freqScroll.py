@@ -12,9 +12,6 @@ class FreqScroll(Effect):
     def __init__(self, visualizer):
         self.effectName = "FreqScroll"
         self.configProps = [
-            ["blur", "Blur", "float_slider", (0.95, 1, 0.005), 0.2],
-            ["decay", "Decay", "float_slider", (0.75, 1.0, 0.0005), 0.995],
-            ["speed", "Speed", "slider", (3, 10, 1), 9]
         ]
 
     def visualize(self, board, y):
@@ -24,18 +21,24 @@ class FreqScroll(Effect):
         r, g, b = colorsys.hsv_to_rgb(maxMel / len(y), 1, 1)
 
         # Scrolling effect window
-        speed = config.settings["devices"][board.board]["effect_opts"]["FreqScroll"]["speed"]
+        speed = config.settings["devices"][board.board]["effect_opts"]["Scroll"]["speed"]
         board.visualizer.output[:, speed:] = board.visualizer.output[:, :-speed]
-        board.visualizer.output = (board.visualizer.output * config.settings["devices"][board.board]["effect_opts"]["FreqScroll"]["decay"]).astype(int)
-        board.visualizer.output = gaussian_filter1d(board.visualizer.output, sigma=config.settings["devices"][board.board]["effect_opts"]["FreqScroll"]["blur"])
+        board.visualizer.output = (board.visualizer.output * config.settings["devices"][board.board]["effect_opts"]["Scroll"]["decay"]).astype(int)
+        board.visualizer.output = gaussian_filter1d(board.visualizer.output, sigma=config.settings["devices"][board.board]["effect_opts"]["Scroll"]["blur"])
 
         board.visualizer.output[0, :speed] = int(r * 255 * y[maxMel])
         board.visualizer.output[1, :speed] = int(g * 255 * y[maxMel])
         board.visualizer.output[2, :speed] = int(b * 255 * y[maxMel])
 
-        p = board.visualizer.output
+        if config.settings["devices"][board.board]["effect_opts"]["Scroll"]["flip_lr"]:
+            p = np.fliplr(board.visualizer.output)
+        else:
+            p = board.visualizer.output
 
-        p = np.concatenate((p[:, ::-2], p[:, ::2]), axis=1)
+        if config.settings["devices"][board.board]["effect_opts"]["Scroll"]["mirror"]:
+            p = np.concatenate((p[:, ::-2], p[:, ::2]), axis=1)
+        else:
+            p = p[:, ::]
 
         return p
 

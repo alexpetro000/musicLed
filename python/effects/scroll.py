@@ -15,6 +15,7 @@ class Scroll(Effect):
             ["mids_color", "Mids Color", "dropdown", config.settings["colors"], "Green"],
             ["high_color", "Highs Color", "dropdown", config.settings["colors"], "Blue"],
             ["blur", "Blur", "float_slider", (0.95, 1, 0.005), 0.2],
+            ["mirror", "Mirror", "checkbox", False],
             ["flip_lr", "Flip LR", "checkbox", False],
             ["decay", "Decay", "float_slider", (0.75, 1.0, 0.0005), 0.995],
             ["speed", "Speed", "slider", (3, 10, 1), 9],
@@ -55,7 +56,10 @@ class Scroll(Effect):
         else:
             p = board.visualizer.output
 
-        p = np.concatenate((p[:, ::-2], p[:, ::2]), axis=1)
+        if config.settings["devices"][board.board]["effect_opts"]["Scroll"]["mirror"]:
+            p = np.concatenate((p[:, ::-2], p[:, ::2]), axis=1)
+        else:
+            p = p[:, ::]
 
         return p
 

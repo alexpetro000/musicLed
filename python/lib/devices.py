@@ -3,6 +3,9 @@ import numpy as np
 import config as config
 import socket
 
+# importing the module
+import logging
+
 class LEDController:
     def __init__(self):
         pass
@@ -77,9 +80,9 @@ class ESP8266(LEDController):
         message = pixels.T.clip(0, config.settings["configuration"]["maxBrightness"]).astype(
             np.uint8).ravel().tostring()
         try:
-            self._sock.sendto(message, socket.SOCK_NONBLOCK, (self._ip, self._port))
-        except:
-            pass
+            self._sock.sendto(message, (self._ip, self._port))
+        except Exception as Argument:
+            logging.exception("Error occured while printing GeeksforGeeks")
 
 
 
